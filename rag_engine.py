@@ -49,6 +49,55 @@ from vector_store import VectorStoreManager, HybridRetriever
 from citation_extractor import CitationExtractor, SourceTracker
 from config import *
 
+# Import tiktoken for token counting
+try:
+    import tiktoken
+    TOKENIZER = tiktoken.encoding_for_model("gpt-4o")
+except:
+    TOKENIZER = None
+
+# Maximum context tokens (default if not in config)
+try:
+    MAX_CONTEXT = MAX_CONTEXT_TOKENS
+except:
+    MAX_CONTEXT = 12000
+
+
+def count_tokens(text: str) -> int:
+    """Count tokens in text."""
+    if TOKENIZER:
+        return len(TOKENIZER.encode(text))
+    return len(text) // 4  # Approximate
+
+
+def limit_context(documents: List[Document], max_tokens: int = MAX_CONTEXT) -> List[Document]:
+    """Limit the context to a maximum number of tokens."""
+    if not documents:
+        return documents
+    
+    limited_docs = []
+    total_tokens = 0
+    
+    for doc in documents:
+        doc_tokens = count_tokens(doc.page_content)
+        if total_tokens + doc_tokens > max_tokens:
+            # Truncate this document if partial fit
+            remaining_tokens = max_tokens - total_tokens
+            if remaining_tokens > 200:  # Worth including partial
+                # Truncate content
+                chars_to_keep = remaining_tokens * 4  # Approximate
+                truncated_content = doc.page_content[:chars_to_keep] + "..."
+                truncated_doc = Document(
+                    page_content=truncated_content,
+                    metadata=doc.metadata
+                )
+                limited_docs.append(truncated_doc)
+            break
+        limited_docs.append(doc)
+        total_tokens += doc_tokens
+    
+    return limited_docs
+
 
 class LegalRAGEngine:
     """
@@ -244,6 +293,16 @@ Based only on the provided context, answer the legal question. Include specific 
                 "citations": []
             }
         
+        # Check for harmful queries first
+        if self._is_harmful_query(question):
+            return {
+                "answer": "I cannot assist with questions about committing crimes or evading law enforcement. If you are in crisis, please contact emergency services or a mental health hotline.",
+                "sources": [],
+                "citations": [],
+                "is_legal": False,
+                "is_harmful": True
+            }
+        
         # Check if question is legal-related
         if not self._is_legal_query(question):
             return {
@@ -256,16 +315,39 @@ Based only on the provided context, answer the legal question. Include specific 
         try:
             # Track OpenAI API usage
             with get_openai_callback() as cb:
-                # Run the chain
-                if create_retrieval_chain is not None:
-                    result = self.qa_chain.invoke({"input": question})
-                    answer = result.get("answer", "")
-                    source_documents = result.get("context", [])
-                else:
-                    # Legacy chain approach
-                    result = self.qa_chain({"query": question})
-                    answer = result.get("result", "")
-                    source_documents = result.get("source_documents", [])
+                # MANUAL RETRIEVAL WITH CONTEXT LIMITING
+                # Step 1: Retrieve documents
+                source_documents = self.retriever.invoke(question)
+                
+                # Step 2: Limit context to avoid token overflow
+                source_documents = limit_context(source_documents, MAX_CONTEXT)
+                
+                # Step 3: Format context
+                context_text = "\n\n---\n\n".join([doc.page_content for doc in source_documents])
+                
+                # Step 4: Create prompt and get response
+                system_prompt = f"""You are an expert legal assistant specializing in Michigan state law and federal criminal/civil procedure rules.
+
+Your role is to provide accurate legal information based ONLY on the provided context from official legal documents.
+
+CRITICAL RULES:
+1. ONLY answer questions related to Michigan law, Federal Rules of Criminal Procedure, Federal Rules of Civil Procedure, Federal Rules of Evidence, and Michigan Court Rules
+2. Base your answers STRICTLY on the provided context
+3. If the context doesn't contain relevant information, say "I don't have information about that in the available legal documents"
+4. Always cite specific rules, sections, or jury instructions when providing information
+5. Be precise and accurate - legal information must be correct
+6. Use clear, professional legal language
+
+Context from legal documents:
+{context_text}
+
+Question: {question}
+
+Provide a comprehensive answer with proper legal citations:"""
+                
+                # Call LLM directly
+                response = self.llm.invoke(system_prompt)
+                answer = response.content if hasattr(response, 'content') else str(response)
                 
                 # Extract citations
                 citations = []
@@ -342,30 +424,77 @@ Based only on the provided context, answer the legal question. Include specific 
             filter_dict=filter_dict if filter_dict else None
         )
         
-        # Temporarily update the chain's retriever
-        old_retriever = self.qa_chain.retriever
-        self.qa_chain.retriever = filtered_retriever
+        # Store original retriever and update for this query
+        old_retriever = self.retriever
+        self.retriever = filtered_retriever
+        
+        # Recreate QA chain with new retriever
+        self._create_qa_chain()
         
         # Run query
         result = self.query(question)
         
-        # Restore original retriever
-        self.qa_chain.retriever = old_retriever
+        # Restore original retriever and chain
+        self.retriever = old_retriever
+        self._create_qa_chain()
         
         return result
     
+    def _is_harmful_query(self, question: str) -> bool:
+        """
+        Detect queries about committing crimes, escaping justice, or harmful activities.
+        
+        Returns:
+            True if query appears to be about harmful/illegal activities
+        """
+        question_lower = question.lower()
+        
+        # Patterns indicating harmful intent (admitting to or planning crimes)
+        harmful_patterns = [
+            # Admissions of violence
+            ('killed', ['escape', 'hide', 'run', 'away', 'avoid', 'evade']),
+            ('murder', ['escape', 'hide', 'run', 'away', 'avoid', 'evade', 'how to']),
+            ('shot', ['escape', 'hide', 'run', 'avoid', 'evade']),
+            ('stabbed', ['escape', 'hide', 'run', 'avoid', 'evade']),
+            ('assault', ['escape', 'hide', 'avoid', 'evade']),
+            # Planning crimes
+            ('how to kill', []),
+            ('how to murder', []),
+            ('get away with', ['crime', 'murder', 'killing']),
+            ('escape police', []),
+            ('escape arrest', []),
+            ('hide body', []),
+            ('destroy evidence', []),
+            ('flee jurisdiction', []),
+        ]
+        
+        for primary, secondary_list in harmful_patterns:
+            if primary in question_lower:
+                if not secondary_list:  # No secondary required
+                    return True
+                for secondary in secondary_list:
+                    if secondary in question_lower:
+                        return True
+        
+        return False
+    
     def _is_legal_query(self, question: str) -> bool:
         """
-        Simple heuristic to determine if query is legal-related.
-        Can be enhanced with a classifier.
+        Determine if query is a legitimate legal question.
+        Returns False for harmful queries or non-legal questions.
         """
+        # First check for harmful content
+        if self._is_harmful_query(question):
+            return False
+        
         legal_keywords = [
             'law', 'legal', 'court', 'rule', 'case', 'trial', 'judge', 'jury',
             'evidence', 'procedure', 'criminal', 'civil', 'motion', 'appeal',
             'defendant', 'plaintiff', 'prosecution', 'defense', 'attorney',
             'statute', 'regulation', 'jurisdiction', 'verdict', 'sentence',
             'rights', 'liability', 'contract', 'tort', 'felony', 'misdemeanor',
-            'michigan', 'federal', 'mcr', 'frcp', 'frcrp', 'fre'
+            'michigan', 'federal', 'mcr', 'frcp', 'frcrp', 'fre',
+            'charged', 'accused', 'arrest', 'bail', 'plea', 'hearing'
         ]
         
         question_lower = question.lower()
@@ -397,7 +526,8 @@ Based only on the provided context, answer the legal question. Include specific 
         
         # Update retriever k value
         retriever = self.vector_store_manager.get_retriever(search_type="mmr", k=k)
-        return retriever.get_relevant_documents(question)
+        # Use invoke instead of deprecated get_relevant_documents
+        return retriever.invoke(question)
     
     def get_stats(self) -> Dict:
         """Get statistics about the RAG engine."""

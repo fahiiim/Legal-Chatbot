@@ -78,7 +78,7 @@ def check_dependencies():
         "uvicorn",
         "langchain",
         "langchain_openai",
-        "faiss",
+        "faiss",  # Note: imported as 'faiss' from faiss-cpu package
         "pdfplumber",
         "tiktoken",
         "tqdm"

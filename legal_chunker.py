@@ -70,9 +70,16 @@ class LegalChunker:
         
         for doc in documents:
             doc_type = doc.metadata.get('doc_type', 'unknown')
+            doc_tokens = self.count_tokens(doc.page_content)
             
+            print(f"Processing: {doc.metadata.get('source', 'unknown')} ({doc_tokens} tokens)")
+            
+            # ALWAYS chunk if document is too large, regardless of type
+            if doc_tokens > self.chunk_size * 2:
+                print(f"  Document too large ({doc_tokens} tokens), using generic chunker")
+                chunks = self._chunk_generic(doc)
             # Choose chunking strategy based on document type
-            if 'section_number' in doc.metadata:
+            elif 'section_number' in doc.metadata:
                 # Document is already section-based from loader
                 chunks = self._chunk_section(doc)
             elif 'rules' in doc_type:
@@ -273,6 +280,8 @@ class LegalChunker:
             "\n\nSection ",
             "\n\nRule ",
             "\n\nArticle ",
+            "\n[PAGE ",     # Page markers
+            "\nRule ",      # Rules without double newline
             "\n\n",         # Paragraphs
             "\n",           # Lines
             ". ",           # Sentences
@@ -280,19 +289,26 @@ class LegalChunker:
             ""              # Characters
         ]
         
+        # Use character-based splitting with approximate token conversion
+        # 1 token ≈ 4 characters, so multiply by 4 for character-based splitting
+        char_chunk_size = self.chunk_size * 4
+        char_chunk_overlap = self.chunk_overlap * 4
+        
         splitter = RecursiveCharacterTextSplitter(
-            chunk_size=self.chunk_size,
-            chunk_overlap=self.chunk_overlap,
+            chunk_size=char_chunk_size,
+            chunk_overlap=char_chunk_overlap,
             separators=separators,
-            length_function=self.count_tokens,
+            length_function=len,  # Use character count for reliability
         )
         
         chunks = splitter.split_documents([doc])
         
-        # Add chunk type to metadata
-        for chunk in chunks:
+        # Add chunk type to metadata and chunk index
+        for i, chunk in enumerate(chunks):
             chunk.metadata['chunk_type'] = 'recursive'
+            chunk.metadata['chunk_index'] = i
         
+        print(f"  Split document into {len(chunks)} chunks")
         return chunks
 
 

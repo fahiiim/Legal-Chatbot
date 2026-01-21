@@ -21,9 +21,12 @@ SUPPORTED_PDFS = [
 
 # RAG Parameters
 EMBEDDING_DIM = 1536
-CHUNK_SIZE = 1000  # Tokens per chunk (increased for legal context)
-CHUNK_OVERLAP = 200  # Tokens overlap
-TOP_K_RETRIEVAL = 5  # Number of top chunks to retrieve
+CHUNK_SIZE = 800  # Tokens per chunk (reduced to avoid token limits)
+CHUNK_OVERLAP = 100  # Tokens overlap
+TOP_K_RETRIEVAL = 4  # Number of top chunks to retrieve (reduced to limit context)
+
+# Maximum context tokens to send to LLM (leave room for response)
+MAX_CONTEXT_TOKENS = 12000
 
 # Vector Store Configuration
 VECTOR_STORE_PERSIST_DIR = "./chroma_db"

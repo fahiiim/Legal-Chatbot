@@ -138,13 +138,16 @@ class VectorStoreManager:
         self.vectorstore.add_documents(documents)
         print(f"Added {len(documents)} documents to vector store")
     
-    def get_retriever(self, k: int = 5, filter_dict: Optional[Dict] = None):
+    def get_retriever(self, k: int = 5, filter_dict: Optional[Dict] = None, 
+                       search_type: str = "similarity", lambda_mult: float = 0.5):
         """
         Get a retriever with specified parameters.
         
         Args:
             k: Number of documents to retrieve
             filter_dict: Metadata filter dictionary (not fully supported in FAISS)
+            search_type: Type of search - 'similarity' or 'mmr'
+            lambda_mult: Lambda multiplier for MMR search (diversity vs relevance)
         
         Returns:
             Configured retriever
@@ -152,8 +155,16 @@ class VectorStoreManager:
         if self.vectorstore is None:
             raise ValueError("Vector store not initialized")
         
+        search_kwargs = {"k": k}
+        
+        # Add MMR-specific parameters
+        if search_type == "mmr":
+            search_kwargs["lambda_mult"] = lambda_mult
+            search_kwargs["fetch_k"] = k * 4  # Fetch more candidates for MMR
+        
         self.retriever = self.vectorstore.as_retriever(
-            search_kwargs={"k": k}
+            search_type=search_type,
+            search_kwargs=search_kwargs
         )
         
         return self.retriever

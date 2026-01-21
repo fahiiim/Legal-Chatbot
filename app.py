@@ -136,11 +136,7 @@ async def query_legal_question(request: QueryRequest):
     if not rag_engine or not rag_engine.is_initialized:
         raise HTTPException(status_code=503, detail="RAG engine not initialized")
     
-    # Classify tier
-    tier, tier_desc, tier_reasoning = TierRouter.classify_tier(request.query)
-    tier_recommendation = TierRouter.get_tier_recommendation(tier)
-    
-    # Query the RAG engine
+    # Query the RAG engine first to check if it's a valid legal query
     if request.doc_type_filter:
         result = rag_engine.query_with_filter(
             question=request.query,
@@ -157,6 +153,20 @@ async def query_legal_question(request: QueryRequest):
     if "error" in result:
         raise HTTPException(status_code=500, detail=result["error"])
     
+    # Only classify tier for legitimate legal queries
+    is_legal = result.get("is_legal", True)
+    is_harmful = result.get("is_harmful", False)
+    
+    if is_legal and not is_harmful:
+        tier, tier_desc, tier_reasoning = TierRouter.classify_tier(request.query)
+        tier_recommendation = TierRouter.get_tier_recommendation(tier)
+    else:
+        # Don't provide tier info for non-legal or harmful queries
+        tier = 0
+        tier_desc = "Not applicable - query not related to legal matters" if not is_harmful else "Not applicable - inappropriate query"
+        tier_reasoning = "Query was not processed as a legal question"
+        tier_recommendation = "Please submit a legitimate legal question about Michigan or federal law."
+    
     # Build response
     response = QueryResponse(
         query=request.query,
@@ -168,7 +178,7 @@ async def query_legal_question(request: QueryRequest):
         citations=result.get("citations", []),
         sources=result.get("sources", []),
         num_sources=result.get("num_sources", 0),
-        is_legal=result.get("is_legal", True),
+        is_legal=is_legal,
         usage=result.get("usage"),
         timestamp=datetime.now().isoformat()
     )
