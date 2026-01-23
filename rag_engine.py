@@ -566,3 +566,4 @@ def get_rag_engine(force_reload: bool = False) -> LegalRAGEngine:
         _engine_instance.initialize(force_reload=True)
     
     return _engine_instance
+# this was the rag engine wher ive attached all the properties of the RAG and build the proper flow of the rag

@@ -5,6 +5,7 @@ Provides REST API endpoints for legal question answering.
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict
 import uvicorn
@@ -12,6 +13,7 @@ from datetime import datetime
 
 from rag_engine import get_rag_engine
 from tier_router import TierRouter
+from report_generator import LegalReportGenerator
 from config import *
 
 
@@ -90,12 +92,21 @@ async def root():
         "message": "Michigan Legal RAG Chatbot API",
         "version": "2.0.0",
         "endpoints": {
-            "POST /query": "Submit a legal query",
+            "POST /query": "Submit a legal query (JSON response)",
+            "POST /query/report": "Submit a legal query (full formatted report)",
+            "POST /query/summary-report": "Submit a legal query (summary report only)",
             "GET /health": "Health check",
             "GET /stats": "Get system statistics",
+            "GET /documents": "List supported documents",
+            "POST /search": "Search documents",
             "POST /reload": "Reload documents (admin)"
         },
-        "supported_documents": SUPPORTED_PDFS
+        "supported_documents": SUPPORTED_PDFS,
+        "report_endpoints": {
+            "description": "For attorney review and case documentation",
+            "/query/report": "Complete professional legal report with all citations and sources",
+            "/query/summary-report": "Quick summary for initial review"
+        }
     }
 
 
@@ -186,7 +197,114 @@ async def query_legal_question(request: QueryRequest):
     return response
 
 
-@app.post("/reload")
+@app.post("/query/report", response_class=PlainTextResponse)
+async def query_legal_question_with_report(request: QueryRequest):
+    """
+    Process a legal query and return a complete formatted legal report.
+    Ideal for attorneys who want a professional document for case review.
+    
+    Args:
+        request: QueryRequest with the legal question
+    
+    Returns:
+        Plain text report formatted for attorney review
+    """
+    if not rag_engine or not rag_engine.is_initialized:
+        raise HTTPException(status_code=503, detail="RAG engine not initialized")
+    
+    # Query the RAG engine
+    if request.doc_type_filter:
+        result = rag_engine.query_with_filter(
+            question=request.query,
+            doc_type=request.doc_type_filter
+        )
+    else:
+        result = rag_engine.query(
+            question=request.query,
+            return_sources=request.include_sources,
+            return_citations=request.include_citations
+        )
+    
+    # Handle errors
+    if "error" in result:
+        raise HTTPException(status_code=500, detail=result["error"])
+    
+    # Classify tier
+    is_legal = result.get("is_legal", True)
+    is_harmful = result.get("is_harmful", False)
+    
+    if is_legal and not is_harmful:
+        tier, tier_desc, tier_reasoning = TierRouter.classify_tier(request.query)
+        tier_recommendation = TierRouter.get_tier_recommendation(tier)
+    else:
+        tier = 0
+        tier_desc = "Not applicable - query not related to legal matters" if not is_harmful else "Not applicable - inappropriate query"
+        tier_reasoning = "Query was not processed as a legal question"
+        tier_recommendation = "Please submit a legitimate legal question about Michigan or federal law."
+    
+    # Generate and return full report
+    report = LegalReportGenerator.generate_report(
+        query=request.query,
+        answer=result.get("answer", ""),
+        tier=tier,
+        tier_description=tier_desc,
+        tier_reasoning=tier_reasoning,
+        tier_recommendation=tier_recommendation,
+        citations=result.get("citations", []),
+        sources=result.get("sources", []),
+        usage=result.get("usage")
+    )
+    
+    return report
+
+
+@app.post("/query/summary-report", response_class=PlainTextResponse)
+async def query_legal_question_summary(request: QueryRequest):
+    """
+    Process a legal query and return a concise summary report.
+    Useful for quick attorney review.
+    
+    Args:
+        request: QueryRequest with the legal question
+    
+    Returns:
+        Plain text summary report
+    """
+    if not rag_engine or not rag_engine.is_initialized:
+        raise HTTPException(status_code=503, detail="RAG engine not initialized")
+    
+    # Query the RAG engine
+    result = rag_engine.query(
+        question=request.query,
+        return_sources=False,
+        return_citations=False
+    )
+    
+    # Handle errors
+    if "error" in result:
+        raise HTTPException(status_code=500, detail=result["error"])
+    
+    # Classify tier
+    is_legal = result.get("is_legal", True)
+    is_harmful = result.get("is_harmful", False)
+    
+    if is_legal and not is_harmful:
+        tier, tier_desc, tier_reasoning = TierRouter.classify_tier(request.query)
+    else:
+        tier = 0
+        tier_desc = "Not applicable"
+        tier_reasoning = "Query was not processed as a legal question"
+    
+    # Generate and return summary report
+    report = LegalReportGenerator.generate_summary_report(
+        query=request.query,
+        answer=result.get("answer", ""),
+        tier=tier,
+        tier_description=tier_desc,
+        tier_reasoning=tier_reasoning
+    )
+    
+    return report
 async def reload_documents(background_tasks: BackgroundTasks):
     """
     Reload all documents and rebuild vector store.

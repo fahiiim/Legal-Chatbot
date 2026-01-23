@@ -38,8 +38,8 @@ NO_PROVISION_RESPONSE = "No relevant provision found in the Michigan Court Rules
 
 # Tier Classification Thresholds
 TIER_KEYWORDS = {
-    1: ["traffic", "infraction", "name change", "small claims", "uncontested"],
-    2: ["felony", "jail", "motion", "contested", "probation", "custody"],
-    3: ["homicide", "federal", "violent", "csc", "armed", "constitutional"],
-    4: ["appellate", "supreme court", "capital", "rico", "precedent"]
+    1: ["traffic", "infraction", "name change", "small claims", "uncontested", "ticket", "ordinance"],
+    2: ["felony", "jail", "motion", "contested", "probation", "custody", "divorce", "landlord", "tenant", "harass", "misdemeanor"],
+    3: ["homicide", "federal", "violent", "csc", "armed", "constitutional", "death", "kill", "murder", "assault", "weapon", "gun", "knife", "sex", "rape", "strangle", "suffocate", "arson", "burn", "fire"],
+    4: ["appellate", "supreme court", "capital", "rico", "precedent", "class action", "complex litigation"]
 }

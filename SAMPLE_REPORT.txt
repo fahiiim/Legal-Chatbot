@@ -1,0 +1,183 @@
+================================================================================
+LEGAL RESEARCH REPORT
+Michigan Legal RAG Chatbot - Attorney Review
+================================================================================
+
+Generated: January 22, 2026 at 02:45 PM
+
+--------------------------------------------------------------------------------
+CASE CLASSIFICATION & URGENCY ASSESSMENT
+--------------------------------------------------------------------------------
+
+Complexity Tier: 3
+Classification: High-Stakes / Serious Felony (violent crimes, federal cases, constitutional issues)
+
+Tier Determination Basis:
+  Query matched Tier 3: burning, arson
+
+Recommendation:
+  This is a serious matter with significant consequences. Strong legal representation is recommended.
+
+--------------------------------------------------------------------------------
+CLIENT STATEMENT / CASE FACTS
+--------------------------------------------------------------------------------
+
+I saw two guys spreading kerosine in my neighbor's house and burns their house, thankfully they were in the vacation, luckily i got the cctv footages, now i wanna take legal action to them
+
+--------------------------------------------------------------------------------
+LEGAL ANALYSIS & FINDINGS
+--------------------------------------------------------------------------------
+
+CRIMINAL LIABILITY ANALYSIS: ARSON
+
+Based on the facts presented, the individuals who intentionally spread kerosene and burned your neighbor's house may face charges under Michigan's arson statute, specifically MCL 750.71 (Burning of Dwelling House).
+
+APPLICABLE STATUTORY ELEMENTS:
+
+Under Michigan Criminal Jury Instruction 31.15 (Burning of a Dwelling House), the prosecutor must prove the following elements beyond a reasonable doubt:
+
+1. BURNING OF PROPERTY
+   Definition: "Burning" means setting fire to or doing anything that results in the starting of a fire, or helping or persuading someone else to set a fire.
+   Standard: It is sufficient if any part of the property is burned, no matter how small; the property does not have to be completely destroyed.
+   Application to Your Case: The spreading of kerosene and subsequent fire clearly satisfies this element.
+
+2. NATURE OF THE PROPERTY (Dwelling House)
+   Definition: A dwelling house is a structure that was actually being lived in or reasonably could have been lived in at the time of the fire.
+   Vacant Dwelling Exception: The fact that your neighbors were on vacation does not necessarily prevent this from being charged as burning of a dwelling house, as the house remained a residential dwelling.
+   Application to Your Case: As a residential property, this element appears satisfied.
+
+3. INTENT REQUIREMENT
+   Definition: When the defendant burned the dwelling or any of its contents, they must have intended to burn the dwelling or contents, OR intentionally committed an act creating a very high risk of burning the dwelling or contents, with knowledge of that risk and disregard for it.
+   Application to Your Case: The deliberate spreading of kerosene indicates clear intent to burn the property.
+
+EVIDENCE CONSIDERATIONS:
+
+Your CCTV footage is CRITICAL evidence that:
+- Establishes the defendants' intentional actions
+- Creates a timeline of events
+- Provides direct visual proof of malicious conduct
+- Corroborates witness testimony
+- May establish premeditation or planning
+
+EVIDENTIARY CHAIN:
+1. Preserve all CCTV footage in original and backup formats
+2. Document the date, time stamps, and quality of video
+3. Identify the defendants clearly in footage
+4. Note any other witnesses present
+5. Photograph damage to the property
+
+POTENTIAL CRIMINAL CHARGES:
+
+PRIMARY:
+- MCL 750.71: Burning of a Dwelling House (Felony - up to life imprisonment)
+
+SECONDARY/ALTERNATIVE:
+- MCL 750.72: Burning of Other Buildings/Property (if charged as building other than dwelling)
+- MCL 750.539: Willful/Malicious Destruction of Property
+- MCL 750.110: Conspiracy (if coordinated between both defendants)
+- MCL 750.349: Arson Causing Bodily Injury (if anyone was injured)
+
+AGGRAVATING FACTORS:
+- Premeditation (bringing accelerant)
+- Multiple perpetrators (conspiracy)
+- Potential for life safety issues
+- Property destruction causing financial loss
+
+CIVIL LIABILITY CONSIDERATIONS:
+
+Beyond criminal charges, your neighbors may have civil remedies:
+- Premises liability claim against any responsible parties
+- Negligent/intentional tort damages
+- Insurance recovery (homeowner's policy)
+- Restitution through criminal proceedings
+
+YOUR ROLE AS WITNESS & COMPLAINANT:
+
+As the reporting party with critical evidence:
+1. You will likely be a key witness in any prosecution
+2. Maintain detailed records of when/how you obtained video
+3. Secure the original footage (avoid compression or editing)
+4. Be prepared for potential witness intimidation (report to police if occurs)
+5. Coordinate with police investigation and prosecutor's office
+
+NEXT STEPS:
+
+IMMEDIATE (24-48 hours):
+1. Report the incident to local law enforcement (911 if not already done)
+2. File a written police report
+3. Provide all CCTV footage and technical details
+4. Identify any other witnesses
+
+SHORT-TERM (1-2 weeks):
+1. Consult with a criminal defense or prosecution victim advocate
+2. Obtain a police report number for insurance and civil claims
+3. Assist in identifying the defendants
+4. Prepare for police interview/formal statement
+
+MEDIUM-TERM (ongoing):
+1. Respond to any law enforcement requests
+2. Support prosecution investigation
+3. Prepare for potential grand jury testimony
+4. Coordinate with neighbors on their insurance claims
+
+--------------------------------------------------------------------------------
+APPLICABLE STATUTES, RULES & JURY INSTRUCTIONS
+--------------------------------------------------------------------------------
+
+1. MCL 750.71 - Burning of a Dwelling House
+   Reference: Michigan Compiled Laws § 750.71
+   Description: Felony offense requiring proof of burning and intent
+
+2. MCL 750.72 - Burning of Other Structures
+   Reference: Michigan Compiled Laws § 750.72
+   Description: Alternative charge for non-dwelling structures
+
+3. M Crim JI 31.15 - Burning of a Dwelling House (Jury Instruction)
+   Reference: Michigan Criminal Jury Instructions
+   Description: Standard jury instructions for element proof in arson cases
+
+4. MCL 750.539 - Malicious Destruction of Property
+   Reference: Michigan Compiled Laws § 750.539
+   Description: Alternative or additional charge for property destruction
+
+5. Federal Rules of Evidence - 401, 402, 403
+   Reference: FRE
+   Description: Relevance and admissibility of CCTV evidence
+
+6. Michigan Rule of Evidence 401 - Definition of Relevant Evidence
+   Reference: MRE 401
+   Description: Video evidence as relevant to prove elements of arson
+
+--------------------------------------------------------------------------------
+TIER CLASSIFICATION DETAILS
+--------------------------------------------------------------------------------
+
+TIER 3: HIGH-STAKES / SERIOUS FELONY
+Typical Cases: Violent crimes, federal offenses, constitutional violations, serious property crimes
+
+Characteristics:
+  • Significant legal complexity
+  • Serious criminal exposure or major civil consequences
+  • High stakes (potential incarceration, major fines, loss of rights)
+  • Requires specialized expertise
+  • Multiple strategic options need evaluation
+
+Recommended Action:
+  • Engage experienced criminal defense or specialized counsel IMMEDIATELY
+  • Do not discuss with law enforcement without attorney present
+  • Preserve all evidence and documentation
+  • Plan for extended legal process and significant investment
+  • Consider expert witnesses or specialized services
+
+================================================================================
+DISCLAIMER
+================================================================================
+
+This report is generated using Retrieval-Augmented Generation (RAG) technology
+and should be reviewed and verified by a qualified attorney. While sourced from
+Michigan Model Criminal Jury Instructions, Federal Rules of Evidence, and Federal
+Rules of Criminal Procedure, this information is provided for educational purposes
+and does not constitute legal advice. An attorney should conduct independent legal
+research and provide personalized counsel based on the specific facts of the case.
+
+================================================================================
