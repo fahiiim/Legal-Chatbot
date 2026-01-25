@@ -3,7 +3,7 @@ FastAPI Application for Michigan Legal RAG Chatbot
 Provides REST API endpoints for legal question answering.
 """
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel, Field
@@ -136,7 +136,7 @@ async def get_stats():
 @app.post("/query", response_model=QueryResponse)
 async def query_legal_question(request: QueryRequest):
     """
-    Process a legal query and return an answer with citations.
+    Process a legal query and return an answer with citations (JSON body).
     
     Args:
         request: QueryRequest with the legal question
@@ -181,6 +181,63 @@ async def query_legal_question(request: QueryRequest):
     # Build response
     response = QueryResponse(
         query=request.query,
+        answer=result.get("answer", ""),
+        tier=tier,
+        tier_description=tier_desc,
+        tier_reasoning=tier_reasoning,
+        tier_recommendation=tier_recommendation,
+        citations=result.get("citations", []),
+        sources=result.get("sources", []),
+        num_sources=result.get("num_sources", 0),
+        is_legal=is_legal,
+        usage=result.get("usage"),
+        timestamp=datetime.now().isoformat()
+    )
+    
+    return response
+
+
+@app.post("/query/form", response_model=QueryResponse)
+async def query_legal_question_form(
+    query: str = Form(..., description="Legal question to ask"),
+    include_sources: bool = Form(default=True, description="Include source documents"),
+    include_citations: bool = Form(default=True, description="Include legal citations")
+):
+    """
+    Process a legal query using form-data (for Postman form-data requests).
+    
+    Use this endpoint if you prefer form-data over JSON.
+    """
+    if not rag_engine or not rag_engine.is_initialized:
+        raise HTTPException(status_code=503, detail="RAG engine not initialized")
+    
+    # Query the RAG engine
+    result = rag_engine.query(
+        question=query,
+        return_sources=include_sources,
+        return_citations=include_citations
+    )
+    
+    # Handle errors
+    if "error" in result:
+        raise HTTPException(status_code=500, detail=result["error"])
+    
+    # Only classify tier for legitimate legal queries
+    is_legal = result.get("is_legal", True)
+    is_harmful = result.get("is_harmful", False)
+    
+    if is_legal and not is_harmful:
+        tier, tier_desc, tier_reasoning = TierRouter.classify_tier(query)
+        tier_recommendation = TierRouter.get_tier_recommendation(tier)
+    else:
+        tier = 0
+        tier_desc = "Not applicable - query not related to legal matters" if not is_harmful else "Not applicable - inappropriate query"
+        tier_reasoning = "Query was not processed as a legal question"
+        tier_recommendation = "Please submit a legitimate legal question about Michigan or federal law."
+    
+    # Build response
+    response = QueryResponse(
+        query=query,
         answer=result.get("answer", ""),
         tier=tier,
         tier_description=tier_desc,

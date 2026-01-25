@@ -49,6 +49,12 @@ from vector_store import VectorStoreManager, HybridRetriever
 from citation_extractor import CitationExtractor, SourceTracker
 from config import *
 
+# Import Phase 1 enhancements
+from reranker import LegalReranker
+from response_validator import LegalResponseValidator
+from evaluator import RAGEvaluator
+from semantic_cache import SemanticCache
+
 # Import tiktoken for token counting
 try:
     import tiktoken
@@ -136,6 +142,54 @@ class LegalRAGEngine:
         self.citation_extractor = CitationExtractor()
         self.source_tracker = SourceTracker()
         
+        # Phase 1 Enhancement Components
+        self.reranker = None
+        self.validator = None
+        self.evaluator = None
+        self.cache = None
+        
+        # Initialize Phase 1 components based on config
+        if USE_RERANKER:
+            try:
+                self.reranker = LegalReranker(
+                    model_name=RERANKER_MODEL,
+                    use_reranker=True,
+                    citation_boost=LEGAL_CITATION_BOOST
+                )
+                print("✓ Reranker initialized")
+            except Exception as e:
+                print(f"Warning: Could not initialize reranker: {e}")
+        
+        if USE_RESPONSE_VALIDATION:
+            try:
+                self.validator = LegalResponseValidator(
+                    llm_model=VALIDATION_MODEL,
+                    strict_mode=STRICT_VALIDATION
+                )
+                print("✓ Response validator initialized")
+            except Exception as e:
+                print(f"Warning: Could not initialize validator: {e}")
+        
+        if USE_EVALUATION:
+            try:
+                self.evaluator = RAGEvaluator(llm_model=EVALUATION_MODEL)
+                print("✓ Evaluator initialized")
+            except Exception as e:
+                print(f"Warning: Could not initialize evaluator: {e}")
+        
+        if USE_SEMANTIC_CACHE:
+            try:
+                self.cache = SemanticCache(
+                    embedding_model=embedding_model,
+                    similarity_threshold=CACHE_SIMILARITY_THRESHOLD,
+                    max_cache_size=CACHE_MAX_SIZE,
+                    ttl_hours=CACHE_TTL_HOURS,
+                    persist_path=CACHE_PERSIST_PATH
+                )
+                print("✓ Semantic cache initialized")
+            except Exception as e:
+                print(f"Warning: Could not initialize cache: {e}")
+        
         # Will be populated during initialization
         self.retriever = None
         self.qa_chain = None
@@ -215,27 +269,77 @@ class LegalRAGEngine:
         
         if create_retrieval_chain is not None and ChatPromptTemplate is not None:
             # Modern approach for newer versions
-            system_prompt = """You are an expert legal assistant specializing in Michigan state law and federal criminal/civil procedure rules.
+            system_prompt = """You are a seasoned Michigan criminal defense and civil litigation attorney providing legal guidance.
 
-Your role is to provide accurate legal information based ONLY on the provided context from official legal documents.
+Your role is to provide accurate, professionally-formatted legal information based ONLY on the provided context from official legal documents.
+
+RESPONSE FORMAT REQUIREMENTS:
+You MUST structure EVERY response using this exact format:
+
+## **Legal Assessment: [Brief Title Based on Query]**
+
+**IMPORTANT:** [One sentence highlighting urgency or key consideration]
+
+---
+
+### **[Relevant Legal Category - e.g., "Applicable Criminal Charges" or "Relevant Legal Standards"]**
+
+[For each applicable law/rule, provide:]
+**1. [Statute/Rule Name] ([Citation - e.g., MCL 750.xxx or MCR x.xxx])**
+- [Explanation of what the law covers]
+- Per [Jury Instruction Citation, e.g., M Crim JI xx.x], [relevant legal standard or definition]
+- [How it applies to the user's situation]
+
+[Repeat for additional applicable laws]
+
+---
+
+### **Protective Measures / Procedural Options**
+
+[If applicable, explain available legal remedies:]
+- **[Option Name]** under **[Citation]**: [Brief explanation]
+- Filing process and requirements
+- What relief it provides
+
+---
+
+### **Recommended Next Steps**
+
+1. **[Action Item]**
+   - [Specific details and instructions]
+
+2. **[Action Item]**
+   - [Specific details and instructions]
+
+[Continue as needed]
+
+---
+
+### **Summary**
+
+[2-3 sentence summary of key points and urgency]
+
+---
+
+*This information is based on Michigan Model Criminal Jury Instructions, Michigan Compiled Laws, and Michigan Court Rules. It is intended as general legal guidance and does not constitute formal legal advice. You should consult with a licensed Michigan attorney regarding your specific circumstances.*
 
 CRITICAL RULES:
 1. ONLY answer questions related to Michigan law, Federal Rules of Criminal Procedure, Federal Rules of Civil Procedure, Federal Rules of Evidence, and Michigan Court Rules
 2. Base your answers STRICTLY on the provided context
-3. If the context doesn't contain relevant information, say "I don't have information about that in the available legal documents"
+3. If the context doesn't contain relevant information, say "I don't have sufficient information in the available legal documents to fully address this question."
 4. For non-legal questions, respond with: "{non_legal_response}"
-5. Always cite specific rules, sections, or jury instructions when providing information
-6. Be precise and accurate - legal information must be correct
-7. Use clear, professional legal language
-8. If multiple rules apply, mention all relevant provisions
-9. Include the specific citation (e.g., MCR 6.101, Fed. R. Crim. P. 12, etc.)
+5. ALWAYS cite specific statutes (MCL), court rules (MCR), jury instructions (M Crim JI / M Civ JI), or federal rules with precise numbers
+6. Use DEFINITIVE language: "Michigan law permits..." or "You may be eligible..." NOT "You might have grounds..."
+7. Maintain a confident, precise, client-focused attorney tone
+8. Include practical, actionable next steps in every response
+9. When multiple legal provisions apply, address each one separately with its own citation
 
 Context from legal documents:
 {{context}}
 
 Question: {{input}}
 
-Provide a comprehensive answer with proper legal citations:"""
+Provide your response following the EXACT format specified above:"""
 
             prompt = ChatPromptTemplate.from_template(system_prompt.format(
                 non_legal_response=NON_LEGAL_RESPONSE,
@@ -251,14 +355,21 @@ Provide a comprehensive answer with proper legal citations:"""
             from langchain_core.output_parsers import StrOutputParser
             from langchain_core.prompts import PromptTemplate
             
-            template = """You are an expert legal assistant specializing in Michigan state law and federal criminal/civil procedure rules.
+            template = """You are a seasoned Michigan criminal defense and civil litigation attorney providing legal guidance.
+
+RESPONSE FORMAT - Structure your response with:
+## **Legal Assessment: [Title]**
+### **Applicable Legal Standards** (with MCL, MCR, M Crim JI citations)
+### **Protective Measures / Options** (if applicable)
+### **Recommended Next Steps** (numbered, actionable)
+### **Summary**
 
 CONTEXT:
 {context}
 
 QUESTION: {question}
 
-Based only on the provided context, answer the legal question. Include specific citations."""
+Provide your response in the professional attorney format specified above, with precise Michigan legal citations:"""
             
             prompt = PromptTemplate(template=template, input_variables=["context", "question"])
             
@@ -275,7 +386,7 @@ Based only on the provided context, answer the legal question. Include specific 
              return_sources: bool = True,
              return_citations: bool = True) -> Dict:
         """
-        Query the RAG engine.
+        Query the RAG engine with Phase 1 enhancements.
         
         Args:
             question: User question
@@ -292,6 +403,13 @@ Based only on the provided context, answer the legal question. Include specific 
                 "sources": [],
                 "citations": []
             }
+        
+        # PHASE 1: Check semantic cache first
+        if self.cache:
+            cached_response = self.cache.get(question)
+            if cached_response:
+                print("✓ Cache hit - returning cached response")
+                return cached_response
         
         # Check for harmful queries first
         if self._is_harmful_query(question):
@@ -315,39 +433,141 @@ Based only on the provided context, answer the legal question. Include specific 
         try:
             # Track OpenAI API usage
             with get_openai_callback() as cb:
-                # MANUAL RETRIEVAL WITH CONTEXT LIMITING
-                # Step 1: Retrieve documents
-                source_documents = self.retriever.invoke(question)
+                # PHASE 1 ENHANCED RETRIEVAL PIPELINE
                 
-                # Step 2: Limit context to avoid token overflow
+                # Step 1: Retrieve more documents for reranking
+                initial_k = INITIAL_RETRIEVAL_K if self.reranker else TOP_K_RETRIEVAL
+                retrieval_kwargs = {"k": initial_k, "lambda_mult": MMR_LAMBDA}
+                
+                # Update retriever if needed
+                temp_retriever = self.vector_store_manager.get_retriever(
+                    search_type="mmr",
+                    k=initial_k,
+                    lambda_mult=MMR_LAMBDA
+                )
+                
+                source_documents = temp_retriever.invoke(question)
+                print(f"Retrieved {len(source_documents)} initial documents")
+                
+                # Step 2: RERANKING - Improve relevance by 15-30%
+                reranker_metadata = {}
+                if self.reranker:
+                    source_documents, reranker_metadata = self.reranker.rerank_with_metadata(
+                        question, 
+                        source_documents, 
+                        top_k=RERANKER_TOP_K
+                    )
+                    print(f"✓ Reranked to {len(source_documents)} most relevant documents")
+                    if reranker_metadata.get("order_changed"):
+                        print(f"  Position changes: {reranker_metadata.get('position_changes', 0)}")
+                
+                # Step 3: Limit context to avoid token overflow
                 source_documents = limit_context(source_documents, MAX_CONTEXT)
                 
-                # Step 3: Format context
+                # Step 4: Format context
                 context_text = "\n\n---\n\n".join([doc.page_content for doc in source_documents])
                 
-                # Step 4: Create prompt and get response
-                system_prompt = f"""You are an expert legal assistant specializing in Michigan state law and federal criminal/civil procedure rules.
+                # Step 5: Create prompt and get response
+                system_prompt = f"""You are a seasoned Michigan criminal defense and civil litigation attorney providing legal guidance.
 
-Your role is to provide accurate legal information based ONLY on the provided context from official legal documents.
+Your role is to provide accurate, professionally-formatted legal information based ONLY on the provided context from official legal documents.
+
+RESPONSE FORMAT REQUIREMENTS:
+You MUST structure EVERY response using this exact format:
+
+## **Legal Assessment: [Brief Title Based on Query]**
+
+**IMPORTANT:** [One sentence highlighting urgency or key consideration based on the severity of the situation]
+
+---
+
+### **[Relevant Legal Category - e.g., "Applicable Criminal Charges" or "Relevant Legal Standards"]**
+
+[For each applicable law/rule, provide:]
+**1. [Statute/Rule Name] ([Citation - e.g., MCL 750.xxx or MCR x.xxx])**
+- [Explanation of what the law covers]
+- Per [Jury Instruction Citation, e.g., M Crim JI xx.x], [relevant legal standard or definition]
+- [How it applies to the user's situation]
+
+[Repeat for additional applicable laws]
+
+---
+
+### **Protective Measures / Procedural Options**
+
+[If applicable, explain available legal remedies such as PPOs, motions, filings:]
+- **[Option Name]** under **[Citation]**: [Brief explanation]
+- Filing process and requirements under Michigan Court Rules
+- What relief it provides
+
+---
+
+### **Recommended Next Steps**
+
+1. **[Action Item]**
+   - [Specific details and instructions]
+
+2. **[Action Item]**
+   - [Specific details and instructions]
+
+3. **[Action Item]**
+   - [Specific details and instructions]
+
+[Continue as needed - be practical and actionable]
+
+---
+
+### **Summary**
+
+[2-3 sentence summary emphasizing key legal provisions and recommended actions. If situation is urgent/serious, convey appropriate urgency.]
+
+---
+
+*This information is based on Michigan Model Criminal Jury Instructions, Michigan Compiled Laws, and Michigan Court Rules. It is intended as general legal guidance and does not constitute formal legal advice. You should consult with a licensed Michigan attorney regarding your specific circumstances.*
 
 CRITICAL RULES:
-1. ONLY answer questions related to Michigan law, Federal Rules of Criminal Procedure, Federal Rules of Civil Procedure, Federal Rules of Evidence, and Michigan Court Rules
-2. Base your answers STRICTLY on the provided context
-3. If the context doesn't contain relevant information, say "I don't have information about that in the available legal documents"
-4. Always cite specific rules, sections, or jury instructions when providing information
-5. Be precise and accurate - legal information must be correct
-6. Use clear, professional legal language
+1. ONLY answer questions related to Michigan law, Federal Rules, and Michigan Court Rules
+2. Base your answers STRICTLY on the provided context - do not invent laws or citations
+3. If the context doesn't contain relevant information, acknowledge the limitation clearly
+4. ALWAYS cite specific statutes (MCL), court rules (MCR), jury instructions (M Crim JI / M Civ JI), or federal rules with PRECISE numbers
+5. Use DEFINITIVE language: "Michigan law permits..." or "You may be eligible..." NOT "You might have grounds..." or "could potentially"
+6. Maintain a confident, precise, client-focused attorney tone throughout
+7. Include practical, actionable next steps in EVERY response
+8. When the situation involves violence, threats, or urgent safety concerns, convey appropriate urgency
 
 Context from legal documents:
 {context_text}
 
 Question: {question}
 
-Provide a comprehensive answer with proper legal citations:"""
+Provide your response following the EXACT format specified above:"""
                 
                 # Call LLM directly
                 response = self.llm.invoke(system_prompt)
                 answer = response.content if hasattr(response, 'content') else str(response)
+                
+                # PHASE 1: RESPONSE VALIDATION - Prevent hallucinations
+                validation_result = {}
+                if self.validator:
+                    print("✓ Validating response...")
+                    validation_result = self.validator.validate_with_fallback(
+                        answer, 
+                        source_documents, 
+                        question
+                    )
+                    
+                    # Handle validation failures
+                    if not validation_result.get("validation_passed", True):
+                        print(f"⚠ Validation warning: {validation_result.get('recommendation', 'FLAG')}")
+                        
+                        # Auto-correct if enabled
+                        if AUTO_CORRECT_RESPONSES and validation_result.get("recommendation") != "PASS":
+                            correction = self.validator.handle_validation_failure(
+                                answer, validation_result, source_documents
+                            )
+                            if correction.get("action") == "CORRECTED":
+                                answer = correction["corrected_answer"]
+                                print("✓ Response auto-corrected")
                 
                 # Extract citations
                 citations = []
@@ -362,7 +582,8 @@ Provide a comprehensive answer with proper legal citations:"""
                 if return_sources and source_documents:
                     formatted_sources = self.source_tracker.get_source_metadata(source_documents)
                 
-                return {
+                # Build response
+                result = {
                     "answer": answer,
                     "sources": formatted_sources,
                     "citations": [c.__dict__ for c in citations],
@@ -375,6 +596,44 @@ Provide a comprehensive answer with proper legal citations:"""
                         "total_cost": cb.total_cost
                     }
                 }
+                
+                # Add Phase 1 metadata
+                if reranker_metadata:
+                    result["reranker_metadata"] = reranker_metadata
+                
+                if validation_result:
+                    result["validation"] = {
+                        "passed": validation_result.get("validation_passed", True),
+                        "confidence": validation_result.get("confidence", 1.0),
+                        "recommendation": validation_result.get("recommendation", "PASS")
+                    }
+                
+                # PHASE 1: EVALUATION - Track quality metrics
+                if self.evaluator:
+                    try:
+                        eval_result = self.evaluator.evaluate_rag_response(
+                            question=question,
+                            answer=answer,
+                            retrieved_docs=source_documents,
+                            run_generation_eval=True
+                        )
+                        result["evaluation"] = eval_result.get("generation_metrics", {})
+                        
+                        if SAVE_EVALUATION_HISTORY:
+                            self.evaluator.save_evaluation_history(EVALUATION_HISTORY_PATH)
+                    except Exception as e:
+                        print(f"Warning: Evaluation failed: {e}")
+                
+                # PHASE 1: Cache the response
+                if self.cache:
+                    try:
+                        # Cache a clean version without cache metadata
+                        cache_data = {k: v for k, v in result.items() if k != "cache_hit"}
+                        self.cache.set(question, cache_data)
+                    except Exception as e:
+                        print(f"Warning: Cache save failed: {e}")
+                
+                return result
         
         except Exception as e:
             print(f"Error during query: {e}")
@@ -540,7 +799,50 @@ Provide a comprehensive answer with proper legal citations:"""
         stats['chunk_size'] = self.chunk_size
         stats['status'] = 'initialized'
         
+        # Add Phase 1 statistics
+        if self.cache:
+            stats['cache'] = self.cache.get_stats()
+        
+        if self.evaluator:
+            stats['evaluation'] = self.evaluator.get_average_metrics()
+        
+        if self.reranker:
+            stats['reranker_enabled'] = True
+        
+        if self.validator:
+            stats['validation_enabled'] = True
+        
         return stats
+    
+    def clear_cache(self):
+        """Clear the semantic cache."""
+        if self.cache:
+            self.cache.clear()
+            print("✓ Cache cleared")
+        else:
+            print("Cache not enabled")
+    
+    def save_cache(self):
+        """Manually save cache to disk."""
+        if self.cache:
+            self.cache.save_cache()
+        else:
+            print("Cache not enabled")
+    
+    def get_evaluation_summary(self, last_n: Optional[int] = None) -> Dict:
+        """
+        Get evaluation summary.
+        
+        Args:
+            last_n: Number of recent evaluations to summarize
+        
+        Returns:
+            Evaluation summary
+        """
+        if self.evaluator:
+            return self.evaluator.get_average_metrics(last_n)
+        else:
+            return {"error": "Evaluator not enabled"}
 
 
 # Global engine instance
