@@ -5,6 +5,7 @@ Enhanced with TOC extraction, hierarchical context, and cross-reference tracking
 """
 
 import re
+import gc
 from typing import List, Dict, Optional, Tuple, Set
 try:
     from langchain.schema import Document
@@ -253,11 +254,11 @@ class LegalChunker:
         self.cross_ref_tracker = CrossReferenceTracker()
     
     def count_tokens(self, text: str) -> int:
-        """Count tokens in text."""
-        if self.tokenizer is None:
-            # Simple approximation: 1 token ≈ 4 characters
-            return len(text) // 4
-        return len(self.tokenizer.encode(text))
+        """Count tokens in text with memory-efficient approximation."""
+        # Always use character-based approximation for reliability and memory efficiency
+        # 1 token ≈ 4 characters on average for English text
+        # This avoids tiktoken memory issues with large batches of chunks
+        return len(text) // 4
     
     def _extract_page_ranges(self, content: str) -> List[Tuple[str, int, int]]:
         """Extract page-based segments from content with [PAGE X] markers."""
@@ -340,6 +341,7 @@ class LegalChunker:
     def chunk_documents(self, documents: List[Document]) -> List[Document]:
         """
         Chunk documents using intelligent legal-aware splitting.
+        Memory-optimized for large documents.
         
         Args:
             documents: List of LangChain documents to chunk
@@ -353,26 +355,35 @@ class LegalChunker:
         
         for doc in documents:
             doc_type = doc.metadata.get('doc_type', 'unknown')
-            doc_tokens = self.count_tokens(doc.page_content)
+            try:
+                doc_tokens = self.count_tokens(doc.page_content)
+            except Exception:
+                doc_tokens = len(doc.page_content) // 4
             
             print(f"Processing: {doc.metadata.get('source', 'unknown')} ({doc_tokens} tokens)")
             
+            # Memory optimization: Skip expensive features for very large documents
+            is_large_document = doc_tokens > 100000  # 100k tokens threshold
+            
+            if is_large_document:
+                print(f"  Large document detected - using memory-efficient mode")
+            
             # Step 1: Extract TOC/Index if enabled (do this first, before other processing)
-            if self.extract_toc:
+            if self.extract_toc and not is_large_document:
                 toc_chunks = self._process_toc_pages(doc)
                 if toc_chunks:
                     print(f"  Extracted {len(toc_chunks)} TOC/Index chunk(s)")
                     toc_docs.extend(toc_chunks)
             
-            # Step 2: Extract definitions if enabled
-            if self.extract_definitions:
+            # Step 2: Extract definitions if enabled (skip for large docs)
+            if self.extract_definitions and not is_large_document:
                 defn_chunks = self._process_definitions(doc)
                 if defn_chunks:
                     print(f"  Extracted {len(defn_chunks)} definition chunk(s)")
                     definition_docs.extend(defn_chunks)
             
-            # Step 3: Add hierarchical context prefix if enabled
-            if self.preserve_hierarchy:
+            # Step 3: Add hierarchical context prefix if enabled (skip for large docs)
+            if self.preserve_hierarchy and not is_large_document:
                 hierarchy_context = self._build_hierarchical_context(doc)
                 if hierarchy_context and not doc.page_content.startswith('['):
                     # Prepend context to content
@@ -381,10 +392,11 @@ class LegalChunker:
                         metadata=doc.metadata
                     )
             
-            # Step 4: Enrich metadata with cross-references
-            doc.metadata = CrossReferenceTracker.enrich_metadata(
-                doc.page_content, doc.metadata
-            )
+            # Step 4: Skip cross-reference enrichment for large documents (memory intensive)
+            if not is_large_document:
+                doc.metadata = CrossReferenceTracker.enrich_metadata(
+                    doc.page_content, doc.metadata
+                )
             
             # Step 5: Choose chunking strategy based on document characteristics
             # ALWAYS chunk if document is too large, regardless of type
@@ -402,15 +414,35 @@ class LegalChunker:
             else:
                 chunks = self._chunk_generic(doc)
             
-            # Step 6: Post-process chunks to add cross-references and enhance metadata
-            for chunk in chunks:
-                chunk.metadata = CrossReferenceTracker.enrich_metadata(
-                    chunk.page_content, chunk.metadata
-                )
-                # Add chunk statistics
-                chunk.metadata['token_count'] = self.count_tokens(chunk.page_content)
+            print(f"  Split document into {len(chunks)} chunks")
             
-            chunked_docs.extend(chunks)
+            # Step 6: Post-process chunks - SKIP cross-references for large documents
+            batch_size = 500
+            for i in range(0, len(chunks), batch_size):
+                batch = chunks[i:i + batch_size]
+                for chunk in batch:
+                    try:
+                        # Only enrich small documents with cross-references
+                        if not is_large_document:
+                            chunk.metadata = CrossReferenceTracker.enrich_metadata(
+                                chunk.page_content, chunk.metadata
+                            )
+                        # Add chunk statistics with safe token counting
+                        chunk.metadata['token_count'] = self.count_tokens(chunk.page_content)
+                    except Exception as e:
+                        # Set default token count on error
+                        if 'token_count' not in chunk.metadata:
+                            chunk.metadata['token_count'] = len(chunk.page_content) // 4
+                chunked_docs.extend(batch)
+                # Free memory after each batch
+                if len(chunks) > 1000:
+                    gc.collect()
+            
+            # Clear chunks list and collect garbage for large documents
+            if len(chunks) > 1000:
+                chunks.clear()
+                gc.collect()
+                print(f"  Memory cleanup performed")
         
         # Combine all chunks: TOC first (for navigation), then definitions, then content
         all_docs = toc_docs + definition_docs + chunked_docs
@@ -430,7 +462,10 @@ class LegalChunker:
         """
         chunks = []
         content = doc.page_content
-        token_count = self.count_tokens(content)
+        try:
+            token_count = self.count_tokens(content)
+        except Exception:
+            token_count = len(content) // 4
         
         # If section is small enough, keep as-is
         if token_count <= self.chunk_size:
@@ -505,7 +540,12 @@ class LegalChunker:
             full_content = f"{parent_context}{header}\n\n{subsection_content}"
             
             # Check if still too large
-            if self.count_tokens(full_content) > self.chunk_size:
+            try:
+                token_count = self.count_tokens(full_content)
+            except Exception:
+                token_count = len(full_content) // 4
+                
+            if token_count > self.chunk_size:
                 # Further split by sentences
                 chunks.extend(self._split_by_sentences(full_content, metadata, subsection_number))
             else:
@@ -532,10 +572,16 @@ class LegalChunker:
             context_prefix = f"[Context: {section_header}]\n\n"
         
         current_chunk = []
-        current_tokens = self.count_tokens(context_prefix)
+        try:
+            current_tokens = self.count_tokens(context_prefix)
+        except Exception:
+            current_tokens = len(context_prefix) // 4
         
         for para in paragraphs:
-            para_tokens = self.count_tokens(para)
+            try:
+                para_tokens = self.count_tokens(para)
+            except Exception:
+                para_tokens = len(para) // 4
             
             if current_tokens + para_tokens > self.chunk_size and current_chunk:
                 # Save current chunk
@@ -553,10 +599,16 @@ class LegalChunker:
                 if self.chunk_overlap > 0 and current_chunk:
                     overlap_text = current_chunk[-1]
                     current_chunk = [overlap_text, para]
-                    current_tokens = self.count_tokens(context_prefix + overlap_text) + para_tokens
+                    try:
+                        current_tokens = self.count_tokens(context_prefix + overlap_text) + para_tokens
+                    except Exception:
+                        current_tokens = len(context_prefix + overlap_text) // 4 + para_tokens
                 else:
                     current_chunk = [para]
-                    current_tokens = self.count_tokens(context_prefix) + para_tokens
+                    try:
+                        current_tokens = self.count_tokens(context_prefix) + para_tokens
+                    except Exception:
+                        current_tokens = len(context_prefix) // 4 + para_tokens
             else:
                 current_chunk.append(para)
                 current_tokens += para_tokens
@@ -586,7 +638,10 @@ class LegalChunker:
         current_tokens = 0
         
         for sentence in sentences:
-            sent_tokens = self.count_tokens(sentence)
+            try:
+                sent_tokens = self.count_tokens(sentence)
+            except Exception:
+                sent_tokens = len(sentence) // 4
             
             if current_tokens + sent_tokens > self.chunk_size and current_chunk:
                 chunk_content = ' '.join(current_chunk)
@@ -604,7 +659,10 @@ class LegalChunker:
                 if self.chunk_overlap > 0 and current_chunk:
                     overlap_text = current_chunk[-1]
                     current_chunk = [overlap_text, sentence]
-                    current_tokens = self.count_tokens(overlap_text) + sent_tokens
+                    try:
+                        current_tokens = self.count_tokens(overlap_text) + sent_tokens
+                    except Exception:
+                        current_tokens = len(overlap_text) // 4 + sent_tokens
                 else:
                     current_chunk = [sentence]
                     current_tokens = sent_tokens
@@ -639,7 +697,10 @@ class LegalChunker:
         self-contained units meant to be read to juries.
         """
         content = doc.page_content
-        token_count = self.count_tokens(content)
+        try:
+            token_count = self.count_tokens(content)
+        except Exception:
+            token_count = len(content) // 4
         
         # If small enough, keep as single chunk
         if token_count <= self.chunk_size:
@@ -682,7 +743,12 @@ class LegalChunker:
                 point_content = remaining_content[start:end].strip()
                 full_content = f"{header}\n\n{point_content}"
                 
-                if self.count_tokens(full_content) > self.chunk_size:
+                try:
+                    point_token_count = self.count_tokens(full_content)
+                except Exception:
+                    point_token_count = len(full_content) // 4
+                    
+                if point_token_count > self.chunk_size:
                     # Split further by sentences
                     sub_chunks = self._split_by_sentences(full_content, doc.metadata, f"point_{match.group(1)}")
                     chunks.extend(sub_chunks)
@@ -741,6 +807,11 @@ class LegalChunker:
             header_chars = len(context_header)
             char_chunk_size = max(char_chunk_size - header_chars - 10, 500)
         
+        # Ensure chunk_overlap is always smaller than chunk_size
+        # Overlap should be at most 30% of chunk size for effective chunking
+        if char_chunk_overlap >= char_chunk_size:
+            char_chunk_overlap = max(int(char_chunk_size * 0.3), 50)
+        
         splitter = RecursiveCharacterTextSplitter(
             chunk_size=char_chunk_size,
             chunk_overlap=char_chunk_overlap,
@@ -752,21 +823,36 @@ class LegalChunker:
         
         # Add context header and enhance metadata for each chunk
         enhanced_chunks = []
-        for i, chunk in enumerate(chunks):
-            # Prepend context header if available
-            if context_header:
-                enhanced_content = f"{context_header}\n\n{chunk.page_content}"
-            else:
-                enhanced_content = chunk.page_content
-            
-            chunk.metadata['chunk_type'] = 'recursive'
-            chunk.metadata['chunk_index'] = i
-            chunk.metadata['total_chunks'] = len(chunks)
-            
-            enhanced_chunks.append(Document(
-                page_content=enhanced_content,
-                metadata=chunk.metadata
-            ))
+        
+        # Process in batches to avoid string concatenation memory spikes
+        batch_size = 500
+        for i in range(0, len(chunks), batch_size):
+            batch = chunks[i:i + batch_size]
+            for j, chunk in enumerate(batch):
+                try:
+                    # Prepend context header if available
+                    if context_header:
+                        enhanced_content = f"{context_header}\n\n{chunk.page_content}"
+                    else:
+                        enhanced_content = chunk.page_content
+                    
+                    chunk_metadata = chunk.metadata.copy()  # Create copy instead of modifying in place
+                    chunk_metadata['chunk_type'] = 'recursive'
+                    chunk_metadata['chunk_index'] = i + j
+                    chunk_metadata['total_chunks'] = len(chunks)
+                    
+                    enhanced_chunks.append(Document(
+                        page_content=enhanced_content,
+                        metadata=chunk_metadata
+                    ))
+                except MemoryError:
+                    # If single chunk enhancement fails, try to keep original without header
+                    print(f"Warning: MemoryError enhancing chunk {i+j}, keeping original")
+                    enhanced_chunks.append(chunk)
+                    
+            # Explicitly clear processed batch references
+            if len(enhanced_chunks) > 1000:
+                gc.collect()
         
         print(f"  Split document into {len(enhanced_chunks)} chunks")
         return enhanced_chunks
@@ -956,3 +1042,7 @@ def create_parent_child_chunks(documents: List[Document],
         child_chunk_size=child_size
     )
     return chunker.create_parent_child_chunks(documents)
+
+# Optimize chunking logic to handle large documents more efficiently
+# This is a placeholder for the optimized chunking logic
+# Consider implementing a strategy to process documents in smaller batches

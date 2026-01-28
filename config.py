@@ -10,20 +10,25 @@ EMBEDDING_MODEL = "text-embedding-3-small"
 
 # PDF Knowledge Base
 PDF_DIRECTORY = "knowledge_base"
+
+# MEMORY-SAFE CONFIGURATION
+# Start with smaller documents only to prevent system crashes
+# Large jury instruction files are disabled to prevent memory overflow
 SUPPORTED_PDFS = [
-    "federal-rules-of-criminal-procedure-dec-1-2024_0.pdf",
-    "federal-rules-of-evidence-dec-1-2024_0.pdf",
-    "federal-rules-of-civil-procedure-dec-1-2024_0.pdf",
-    "criminal-jury-instructions.pdf",
-    "model-civil-jury-instructions.pdf",
-    "michigan-court-rules.pdf"
+    "federal-rules-of-criminal-procedure-dec-1-2024_0.pdf",  # ~64k tokens
+    "federal-rules-of-evidence-dec-1-2024_0.pdf",            # ~27k tokens
+    "federal-rules-of-civil-procedure-dec-1-2024_0.pdf",     # ~95k tokens
+    # Large files disabled - enable one at a time after base system works:
+    # "criminal-jury-instructions.pdf",      # ~400k tokens - VERY LARGE
+    # "model-civil-jury-instructions.pdf",   # ~340k tokens - VERY LARGE
+    # "michigan-court-rules.pdf"             # ~600k tokens - EXTREMELY LARGE
 ]
 
 # RAG Parameters
 EMBEDDING_DIM = 1536
-CHUNK_SIZE = 800  # Tokens per chunk (reduced to avoid token limits)
-CHUNK_OVERLAP = 100  # Tokens overlap
-TOP_K_RETRIEVAL = 4  # Number of top chunks to retrieve (reduced to limit context)
+CHUNK_SIZE = 500  # Reduced chunk size for memory efficiency
+CHUNK_OVERLAP = 50  # Reduced overlap
+TOP_K_RETRIEVAL = 3  # Reduced to limit context
 
 # Maximum context tokens to send to LLM (leave room for response)
 MAX_CONTEXT_TOKENS = 12000

@@ -104,33 +104,45 @@ class LegalDocumentLoader:
         if pdfplumber is None:
             return ""
         
-        text = ""
+        text_parts = []  # Use list instead of string concatenation
         try:
             with pdfplumber.open(filepath) as pdf:
                 for page_num, page in enumerate(pdf.pages, 1):
                     page_text = page.extract_text()
                     if page_text:
                         # Add page marker for reference
-                        text += f"\n[PAGE {page_num}]\n{page_text}\n"
+                        text_parts.append(f"\n[PAGE {page_num}]\n{page_text}\n")
+                    
+                    # Periodic cleanup for large PDFs
+                    if page_num % 50 == 0:
+                        import gc
+                        gc.collect()
+                        
         except Exception as e:
             print(f"pdfplumber error for {filepath}: {e}")
         
-        return text
+        return ''.join(text_parts)
     
     def _extract_text_pypdf2(self, filepath: str) -> str:
         """Fallback extraction using PyPDF2."""
-        text = ""
+        text_parts = []  # Use list instead of string concatenation
         try:
             with open(filepath, 'rb') as file:
                 pdf_reader = PyPDF2.PdfReader(file)
                 for page_num, page in enumerate(pdf_reader.pages, 1):
                     page_text = page.extract_text()
                     if page_text:
-                        text += f"\n[PAGE {page_num}]\n{page_text}\n"
+                        text_parts.append(f"\n[PAGE {page_num}]\n{page_text}\n")
+                    
+                    # Periodic cleanup for large PDFs
+                    if page_num % 50 == 0:
+                        import gc
+                        gc.collect()
+                        
         except Exception as e:
             print(f"PyPDF2 error for {filepath}: {e}")
         
-        return text
+        return ''.join(text_parts)
     
     def _get_page_count(self, filepath: str) -> int:
         """Get the number of pages in a PDF."""

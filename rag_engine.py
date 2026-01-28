@@ -200,6 +200,7 @@ class LegalRAGEngine:
     def initialize(self, force_reload: bool = False) -> bool:
         """
         Initialize the RAG engine by loading documents and creating vector store.
+        Uses memory-efficient incremental processing for large document sets.
         
         Args:
             force_reload: Force reload of documents even if vector store exists
@@ -207,6 +208,8 @@ class LegalRAGEngine:
         Returns:
             True if successful
         """
+        import gc
+        
         try:
             # Try to load existing vector store
             if not force_reload:
@@ -222,27 +225,97 @@ class LegalRAGEngine:
                     self.is_initialized = True
                     return True
             
-            # Load documents
-            print("Loading legal documents...")
-            documents = load_legal_knowledge_base(self.pdf_directory, self.pdf_files)
+            # ============================================================
+            # MEMORY-EFFICIENT PROCESSING: One document at a time
+            # ============================================================
+            print("=" * 60)
+            print("MEMORY-EFFICIENT DOCUMENT PROCESSING")
+            print("Processing documents one at a time to avoid memory overflow")
+            print("=" * 60)
             
-            if not documents:
-                print("Error: No documents loaded")
+            from document_loader import LegalDocumentLoader
+            loader = LegalDocumentLoader(self.pdf_directory)
+            
+            total_chunks = 0
+            is_first_batch = True
+            
+            for i, pdf_file in enumerate(self.pdf_files):
+                print(f"\n[{i+1}/{len(self.pdf_files)}] Processing: {pdf_file}")
+                
+                # Step 1: Load ONE document
+                try:
+                    doc = loader.load_document(pdf_file)
+                    if not doc:
+                        print(f"  ⚠ Skipped: Could not load {pdf_file}")
+                        continue
+                    
+                    # Convert to LangChain Document
+                    from langchain_core.documents import Document as LCDocument
+                    lc_doc = LCDocument(
+                        page_content=doc.content,
+                        metadata=doc.metadata
+                    )
+                    
+                    # Get size info
+                    doc_tokens = len(doc.content) // 4  # Approximate
+                    print(f"  Loaded: ~{doc_tokens:,} tokens")
+                    
+                    # Free the raw document
+                    del doc
+                    gc.collect()
+                    
+                except Exception as e:
+                    print(f"  ⚠ Error loading {pdf_file}: {e}")
+                    continue
+                
+                # Step 2: Chunk THIS document only
+                try:
+                    chunks = create_legal_chunks(
+                        [lc_doc],
+                        chunk_size=self.chunk_size,
+                        chunk_overlap=self.chunk_overlap
+                    )
+                    print(f"  Chunked: {len(chunks)} chunks")
+                    
+                    # Free the original document
+                    del lc_doc
+                    gc.collect()
+                    
+                except Exception as e:
+                    print(f"  ⚠ Error chunking {pdf_file}: {e}")
+                    gc.collect()
+                    continue
+                
+                # Step 3: Add chunks to vector store IMMEDIATELY
+                try:
+                    if is_first_batch:
+                        # Create new vector store with first batch
+                        self.vector_store_manager.create_vectorstore(chunks)
+                        is_first_batch = False
+                    else:
+                        # Add to existing vector store
+                        self.vector_store_manager.add_documents(chunks)
+                    
+                    total_chunks += len(chunks)
+                    print(f"  ✓ Stored to ChromaDB (Total: {total_chunks:,} chunks)")
+                    
+                except Exception as e:
+                    print(f"  ⚠ Error storing {pdf_file}: {e}")
+                
+                # Step 4: CRITICAL - Free memory before next document
+                del chunks
+                gc.collect()
+                print(f"  ✓ Memory cleared")
+            
+            # Final setup
+            if total_chunks == 0:
+                print("Error: No documents were successfully processed")
                 return False
             
-            # Chunk documents
-            print("Chunking documents...")
-            chunks = create_legal_chunks(
-                documents,
-                chunk_size=self.chunk_size,
-                chunk_overlap=self.chunk_overlap
-            )
-            
-            print(f"Created {len(chunks)} chunks from {len(documents)} documents")
-            
-            # Create vector store
-            print("Creating embeddings and vector store...")
-            self.vector_store_manager.create_vectorstore(chunks)
+            print(f"\n{'=' * 60}")
+            print(f"PROCESSING COMPLETE")
+            print(f"Total chunks stored: {total_chunks:,}")
+            print(f"{'=' * 60}")
             
             # Create retriever
             self.retriever = self.vector_store_manager.get_retriever(
@@ -255,7 +328,7 @@ class LegalRAGEngine:
             self._create_qa_chain()
             
             self.is_initialized = True
-            print("RAG Engine initialized successfully!")
+            print("\n✓ RAG Engine initialized successfully!")
             return True
         
         except Exception as e:

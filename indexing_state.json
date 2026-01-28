@@ -1,0 +1,43 @@
+{
+  "jobs": {
+    "federal-rules-of-criminal-procedure-dec-1-2024_0.pdf_1769559677": {
+      "job_id": "federal-rules-of-criminal-procedure-dec-1-2024_0.pdf_1769559677",
+      "status": "failed",
+      "document_name": "federal-rules-of-criminal-procedure-dec-1-2024_0.pdf",
+      "start_time": "2026-01-28T06:21:17.604525",
+      "end_time": "2026-01-28T06:21:17.605079",
+      "error_message": "load_legal_knowledge_base() missing 1 required positional argument: 'pdf_files'",
+      "documents_processed": 0,
+      "chunks_created": 0,
+      "retry_count": 3,
+      "max_retries": 3
+    },
+    "federal-rules-of-evidence-dec-1-2024_0.pdf_1769559677": {
+      "job_id": "federal-rules-of-evidence-dec-1-2024_0.pdf_1769559677",
+      "status": "failed",
+      "document_name": "federal-rules-of-evidence-dec-1-2024_0.pdf",
+      "start_time": "2026-01-28T06:21:17.607165",
+      "end_time": "2026-01-28T06:21:17.608177",
+      "error_message": "load_legal_knowledge_base() missing 1 required positional argument: 'pdf_files'",
+      "documents_processed": 0,
+      "chunks_created": 0,
+      "retry_count": 3,
+      "max_retries": 3
+    },
+    "federal-rules-of-civil-procedure-dec-1-2024_0.pdf_1769559677": {
+      "job_id": "federal-rules-of-civil-procedure-dec-1-2024_0.pdf_1769559677",
+      "status": "failed",
+      "document_name": "federal-rules-of-civil-procedure-dec-1-2024_0.pdf",
+      "start_time": "2026-01-28T06:21:17.608177",
+      "end_time": "2026-01-28T06:21:17.609189",
+      "error_message": "load_legal_knowledge_base() missing 1 required positional argument: 'pdf_files'",
+      "documents_processed": 0,
+      "chunks_created": 0,
+      "retry_count": 3,
+      "max_retries": 3
+    }
+  },
+  "last_successful_index": null,
+  "document_hashes": {},
+  "indexed_documents": []
+}

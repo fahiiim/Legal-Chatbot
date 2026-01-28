@@ -8,8 +8,9 @@ langchain>=0.0.280
 langchain-openai>=0.0.5
 langchain-community>=0.0.10
 
-# Vector Store & Embeddings
-faiss-cpu>=1.7.4
+# Vector Store & Embeddings (ChromaDB - disk-based, memory efficient)
+chromadb>=0.4.0
+langchain-chroma>=0.1.0
 
 # OpenAI
 openai>=1.40.0
@@ -27,6 +28,11 @@ regex>=2023.10.0
 python-dotenv>=1.0.0
 numpy>=1.24.0
 httpx>=0.24.0
+
+# Production & Monitoring (optional but recommended)
+prometheus-client>=0.19.0  # For metrics export
+python-json-logger>=2.0.7  # For structured logging
+psutil>=5.9.0  # For system monitoring
 tqdm>=4.66.0
 PyYAML>=6.0.1
 

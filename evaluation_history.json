@@ -1,31 +1,101 @@
 [
   {
-    "question": "ive wittnesed a attorney taking marijuana while he is in his chember and after that i saw him beating his client unstopable, i wanna take action on him",
-    "timestamp": "2026-01-25T04:01:11.079951",
+    "question": "Someone has been threatening to kill me repeatedly for the past month. Yesterday, on a dark and isolated road, I was physically attacked and beaten by an unknown person; if nearby peoples had not come out of their homes after hearing me scream, I believe they would have killed me. After this incident, he called me again and repeated his death threats. I now want to take legal action against him.",
+    "timestamp": "2026-01-28T06:24:22.035697",
     "generation_metrics": {
       "faithfulness": {
-        "score": 3,
-        "reasoning": "The answer contains some accurate legal principles related to assault and attorney misconduct, which are supported by the sources. However, it introduces specific legal charges and procedures that are not directly referenced in the provided sources, leading to a mix of supported and unsupported claims.",
+        "score": 2,
+        "reasoning": "The answer discusses legal charges and protective measures related to threats and physical assault, which are relevant topics. However, it does not directly reference or support its claims with the provided sources, which focus on federal criminal and civil rules rather than specific state laws or procedures in Michigan. The statutes mentioned (MCL 750.84, MCL 750.81a, MCL 750.411s, and MCL 600.2950) are not found in the sources provided, making the answer mostly unfaithful.",
         "unsupported_claims": [
-          "The specific mention of MCL 750.81 for assault and battery is not directly supported by the sources.",
-          "The reference to MCL 333.7404 regarding marijuana use is not explicitly covered in the provided sources."
+          "MCL 750.84 - Assault with Intent to Do Great Bodily Harm Less Than Murder",
+          "MCL 750.81a - Aggravated Assault",
+          "MCL 750.411s - Threats of Violence",
+          "MCL 600.2950 - Personal Protection Order"
         ],
         "is_faithful": false
       },
       "relevancy": {
         "score": 5,
-        "reasoning": "The answer thoroughly addresses the question by outlining the legal implications of the attorney's actions, including potential criminal charges and professional misconduct. It provides clear steps for reporting the incident and seeking legal recourse, which directly responds to the user's concern about taking action against the attorney.",
+        "reasoning": "The answer provides a comprehensive legal assessment of the situation described in the question, outlining applicable criminal charges, protective measures, and recommended next steps. It directly addresses the individual's desire to take legal action following threats and a physical attack.",
         "is_relevant": true
       },
       "completeness": {
+        "score": 3,
+        "reasoning": "The answer provides a solid overview of the legal options available to the individual facing threats and physical assault, including applicable criminal charges and protective measures. However, it does not reference the specific federal criminal or civil rules from the available sources, which could provide additional context or procedural guidance. The answer could also benefit from more detailed information on how to navigate the legal system, such as timelines or specific forms needed for filing a police report or a PPO.",
+        "missing_information": [
+          "Reference to specific federal criminal or civil rules that may apply to the situation.",
+          "Detailed procedural steps for filing a police report or a PPO, including any necessary forms or documentation."
+        ],
+        "is_complete": false
+      },
+      "overall_score": 3.2,
+      "overall_quality": "acceptable",
+      "timestamp": "2026-01-28T06:24:31.211826"
+    }
+  },
+  {
+    "question": "I have been experiencing physical and emotional abuse from my spouse for the last two years. He frequently slaps and punches me, controls my finances, and threatens to throw me out of the house if I tell anyone. Recently, the violence has escalated; last week he hit me with a household object, leaving visible injuries, and refused to let me seek medical help. I am afraid for my safety and I also worry about the safety of my children who witness this abuse. Please tell me what legal protections and remedies are available to me, such as restraining orders, shelter options, and criminal charges.",
+    "timestamp": "2026-01-28T06:26:01.951907",
+    "generation_metrics": {
+      "faithfulness": {
+        "score": 2,
+        "reasoning": "The answer provides information on domestic violence and protective measures, which is relevant to the topic. However, it does not directly reference or support its claims with the provided sources, which focus on federal criminal and civil rules rather than specific state laws or procedures related to domestic violence in Michigan. Additionally, the answer includes specific Michigan laws and procedures that are not found in the sources.",
+        "unsupported_claims": [
+          "MCL 750.81 and MCL 750.136b are cited without support from the provided sources.",
+          "The process for obtaining a Personal Protection Order (PPO) is detailed without reference to the sources."
+        ],
+        "is_faithful": false
+      },
+      "relevancy": {
         "score": 5,
-        "reasoning": "The answer thoroughly addresses the legal implications of the attorney's actions, including potential criminal charges for assault and battery, as well as the use of marijuana. It also outlines the necessary steps for reporting the misconduct and filing a grievance, effectively utilizing the available sources to provide a comprehensive response.",
-        "missing_information": [],
+        "reasoning": "The answer provides a comprehensive overview of legal protections and remedies available to the individual experiencing domestic violence, including information on criminal charges, personal protection orders, and shelter options. It directly addresses the concerns raised in the question and outlines actionable steps for the individual to take.",
+        "is_relevant": true
+      },
+      "completeness": {
+        "score": 4,
+        "reasoning": "The answer provides a comprehensive overview of the legal protections available to the individual experiencing domestic violence, including applicable criminal charges, protective measures, and recommended next steps. However, it does not reference the specific federal sources provided, which could have added depth to the legal context and options available. Additionally, it could have included more information about the process of filing criminal charges or obtaining a PPO, as well as resources for legal assistance beyond just contacting a family law attorney.",
+        "missing_information": [
+          "Specific references to federal laws or protections related to domestic violence that could be relevant.",
+          "More detailed steps on how to file criminal charges or a PPO.",
+          "Information on additional resources such as legal aid organizations or hotlines."
+        ],
         "is_complete": true
       },
-      "overall_score": 4.2,
+      "overall_score": 3.5,
       "overall_quality": "good",
-      "timestamp": "2026-01-25T04:01:20.161586"
+      "timestamp": "2026-01-28T06:26:12.437482"
+    }
+  },
+  {
+    "question": "i saw two guys spreading kerosine in my neigbohrs house and burns their house, thankfully they wwere in the vacation, luckily i got the cctv footages, now i wanna take legal action to them",
+    "timestamp": "2026-01-28T06:27:50.605136",
+    "generation_metrics": {
+      "faithfulness": {
+        "score": 2,
+        "reasoning": "The answer discusses legal concepts related to arson and property damage, but it does not reference the specific sources provided, which focus on federal evidence rules, civil rules, and criminal rules without mentioning Michigan law or specific statutes like MCL 750.72 or MCL 750.377a. Additionally, the answer includes procedural options and recommendations that are not supported by the sources.",
+        "unsupported_claims": [
+          "The mention of MCL 750.72 and MCL 750.377a as applicable laws.",
+          "The specific procedural options and recommendations for contacting law enforcement and consulting an attorney."
+        ],
+        "is_faithful": false
+      },
+      "relevancy": {
+        "score": 5,
+        "reasoning": "The answer provides a comprehensive legal assessment of the situation described in the question, outlining applicable criminal charges, necessary actions to take, and steps for preserving evidence. It directly addresses the user's intent to take legal action against the individuals responsible for the arson.",
+        "is_relevant": true
+      },
+      "completeness": {
+        "score": 4,
+        "reasoning": "The answer provides a comprehensive overview of the legal implications of the incident, including applicable charges and recommended actions. However, it does not directly reference the available sources, which could have provided additional context or legal framework relevant to the situation. The sources mention federal rules but do not specifically address state laws or the specific legal context of arson and property damage, which are crucial for the user's situation.",
+        "missing_information": [
+          "Direct references to the available sources and how they relate to the user's situation",
+          "Specific state laws or statutes that apply to arson and property damage in the user's jurisdiction"
+        ],
+        "is_complete": true
+      },
+      "overall_score": 3.5,
+      "overall_quality": "good",
+      "timestamp": "2026-01-28T06:27:56.751843"
     }
   }
 ]
