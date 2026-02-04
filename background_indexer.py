@@ -291,7 +291,7 @@ class BackgroundIndexer:
                 raise FileNotFoundError(f"PDF not found: {pdf_path}")
             
             # Load documents
-            documents = load_legal_knowledge_base([pdf_path])
+            documents = load_legal_knowledge_base(self.pdf_directory, [job.document_name])
             job.documents_processed = len(documents)
             
             # Create chunks
