@@ -199,8 +199,13 @@ class BackgroundIndexer:
         # Job queue
         self.job_queue = queue.Queue()
         
-        # Vector store
+        # Vector store - load existing or create new
         self.vector_store = VectorStoreManager(persist_directory=vector_store_dir)
+        try:
+            self.vector_store.load_vectorstore()
+            logger.info(f"Background indexer loaded existing vector store from {vector_store_dir}")
+        except Exception as e:
+            logger.warning(f"Could not load vector store, will create on first indexing: {e}")
         
         # Callbacks
         self.on_job_started: Optional[Callable] = None
@@ -300,7 +305,7 @@ class BackgroundIndexer:
             
             # Add to vector store
             if chunks:
-                self.vector_store.add_documents(chunks, batch_size=50)
+                self.vector_store.add_documents(chunks)
             
             # Update document hash
             file_hash = compute_file_hash(pdf_path)

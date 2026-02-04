@@ -40,6 +40,13 @@ share/python-wheels/
 embeddings_cache.json
 .pytest_cache/
 
+# Vector database (large files)
+chroma_db/
+
+# State files
+indexing_state.json
+evaluation_history.json
+
 # OS
 .DS_Store
 Thumbs.db
