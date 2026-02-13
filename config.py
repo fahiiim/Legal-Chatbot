@@ -5,6 +5,7 @@ load_dotenv()
 
 # OpenAI API Configuration
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+HF_TOKEN = os.getenv("HF_TOKEN", "")
 OPENAI_MODEL = "gpt-4o"
 EMBEDDING_MODEL = "text-embedding-3-small"
 

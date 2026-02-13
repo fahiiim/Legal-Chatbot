@@ -3,8 +3,10 @@ Cross-Encoder Reranker
 Implements advanced re-ranking to improve retrieval relevance by 15-30%.
 """
 
+import os
 from typing import List, Tuple, Optional
 import numpy as np
+import config
 
 try:
     from langchain.schema import Document
@@ -45,6 +47,9 @@ class DocumentReranker:
         
         if self.use_reranker:
             try:
+                # Set HF_TOKEN for model download
+                if hasattr(config, 'HF_TOKEN') and config.HF_TOKEN:
+                    os.environ['HF_TOKEN'] = config.HF_TOKEN
                 print(f"Loading cross-encoder model: {model_name}")
                 self.model = CrossEncoder(model_name, max_length=512)
                 print("✓ Reranker model loaded successfully")

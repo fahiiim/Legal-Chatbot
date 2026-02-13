@@ -116,6 +116,10 @@ class LegalReportGenerator:
                 source_type = source.get("type", "Document")
                 source_page = source.get("page", "")
                 
+                # Truncate title if it's too long (limit to 200 chars for readability)
+                if len(source_title) > 200:
+                    source_title = source_title[:200] + "..."
+                
                 report_parts.append(f"{idx}. {source_title}")
                 report_parts.append(f"   Type: {source_type}")
                 if source_page:
