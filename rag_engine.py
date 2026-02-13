@@ -659,7 +659,7 @@ Provide your response following the EXACT format specified above:"""
                 result = {
                     "answer": answer,
                     "sources": formatted_sources,
-                    "citations": [c.__dict__ for c in citations],
+                    "citations": [c.to_report_dict() for c in citations],
                     "is_legal": True,
                     "num_sources": len(source_documents),
                     "usage": {
