@@ -17,6 +17,37 @@ class Citation:
     section_number: Optional[str] = None
     page_number: Optional[int] = None
     confidence: float = 1.0
+    
+    def to_report_dict(self) -> Dict:
+        """
+        Convert citation to report-friendly dictionary format.
+        
+        Returns:
+            Dictionary with 'name', 'reference', and 'description' keys
+        """
+        # Map source types to readable names
+        source_display_map = {
+            'mcr': 'Michigan Court Rules',
+            'frcp': 'Federal Rules of Civil Procedure',
+            'frcrp': 'Federal Rules of Criminal Procedure',
+            'fre': 'Federal Rules of Evidence',
+            'm_civ_ji': 'Michigan Civil Jury Instructions',
+            'm_crim_ji': 'Michigan Criminal Jury Instructions',
+            'michigan_court_rules': 'Michigan Court Rules',
+            'federal_criminal_rules': 'Federal Rules of Criminal Procedure',
+            'federal_civil_rules': 'Federal Rules of Civil Procedure',
+            'federal_evidence_rules': 'Federal Rules of Evidence',
+            'criminal_jury_instructions': 'Michigan Criminal Jury Instructions',
+            'civil_jury_instructions': 'Michigan Civil Jury Instructions',
+        }
+        
+        source_display = source_display_map.get(self.source, self.source.replace('_', ' ').title())
+        
+        return {
+            'name': self.citation_text,
+            'reference': source_display,
+            'description': f"Rule/Section {self.rule_number}" if self.rule_number else "",
+        }
 
 
 class CitationExtractor:
@@ -224,18 +255,71 @@ class SourceTracker:
     @staticmethod
     def get_source_metadata(source_documents: List) -> List[Dict]:
         """
-        Extract metadata from source documents.
+        Extract metadata from source documents and format for report generator.
         
         Args:
             source_documents: List of source documents
         
         Returns:
-            List of metadata dictionaries
+            List of metadata dictionaries with standardized keys for reporting
         """
         metadata_list = []
+        seen_sources = set()
         
         for doc in source_documents:
             if hasattr(doc, 'metadata'):
-                metadata_list.append(doc.metadata.copy())
+                meta = doc.metadata
+                
+                # Build a unique identifier to avoid duplicates
+                source_id = f"{meta.get('source', '')}_{meta.get('section_number', '')}_{meta.get('section_title', '')}"
+                if source_id in seen_sources:
+                    continue
+                seen_sources.add(source_id)
+                
+                # Map document metadata to report-friendly format
+                # Determine document type display name
+                doc_type = meta.get('doc_type', 'legal_document')
+                type_display_map = {
+                    'federal_criminal_rules': 'Federal Rules of Criminal Procedure',
+                    'federal_civil_rules': 'Federal Rules of Civil Procedure',
+                    'federal_evidence_rules': 'Federal Rules of Evidence',
+                    'michigan_court_rules': 'Michigan Court Rules',
+                    'criminal_jury_instructions': 'Michigan Criminal Jury Instructions',
+                    'civil_jury_instructions': 'Michigan Civil Jury Instructions',
+                }
+                type_display = type_display_map.get(doc_type, doc_type.replace('_', ' ').title())
+                
+                # Build title from available metadata
+                source_file = meta.get('source', 'Unknown')
+                section_num = meta.get('section_number', '')
+                section_title = meta.get('section_title', '')
+                
+                # Create a descriptive title
+                if section_title and section_num:
+                    title = f"{type_display} - {section_num}: {section_title}"
+                elif section_num:
+                    title = f"{type_display} - Section {section_num}"
+                elif section_title:
+                    title = f"{type_display} - {section_title}"
+                else:
+                    # Fall back to filename
+                    title = source_file.replace('.pdf', '').replace('_', ' ').replace('-', ' ').title()
+                
+                # Get page info
+                page = meta.get('page_number', meta.get('page', ''))
+                if page:
+                    page = f"Page {page}"
+                
+                formatted_meta = {
+                    'title': title,
+                    'type': type_display,
+                    'page': page,
+                    # Preserve original metadata for reference
+                    'source_file': source_file,
+                    'section_number': section_num,
+                    'section_title': section_title,
+                    'doc_type': doc_type,
+                }
+                metadata_list.append(formatted_meta)
         
         return metadata_list
