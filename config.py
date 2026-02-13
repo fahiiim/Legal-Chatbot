@@ -20,9 +20,9 @@ SUPPORTED_PDFS = [
     "federal-rules-of-evidence-dec-1-2024_0.pdf",            # ~27k tokens
     "federal-rules-of-civil-procedure-dec-1-2024_0.pdf",     # ~95k tokens
     # Large files disabled - enable one at a time after base system works:
-    # "criminal-jury-instructions.pdf",      # ~400k tokens - VERY LARGE
-    # "model-civil-jury-instructions.pdf",   # ~340k tokens - VERY LARGE
-    # "michigan-court-rules.pdf"             # ~600k tokens - EXTREMELY LARGE
+    "criminal-jury-instructions.pdf",      # ~400k tokens - VERY LARGE
+    "model-civil-jury-instructions.pdf",   # ~340k tokens - VERY LARGE
+    "michigan-court-rules.pdf"             # ~600k tokens - EXTREMELY LARGE
 ]
 
 # RAG Parameters
