@@ -43,7 +43,7 @@ class LegalReportGenerator:
             Formatted legal report string
         """
         
-        if citations is None:
+        if = is None:
             citations = []
         if sources is None:
             sources = []
@@ -51,10 +51,8 @@ class LegalReportGenerator:
         report_parts = []
         
         # Header
-        report_parts.append("=" * 80)
         report_parts.append("LEGAL RESEARCH REPORT")
         report_parts.append("Michigan Legal RAG Chatbot - Attorney Review")
-        report_parts.append("=" * 80)
         report_parts.append(f"\nGenerated: {datetime.now().strftime('%B %d, %Y at %I:%M %p')}")
         report_parts.append("")
         
@@ -136,9 +134,7 @@ class LegalReportGenerator:
         report_parts.append("")
         
         # Footer
-        report_parts.append("=" * 80)
         report_parts.append("DISCLAIMER")
-        report_parts.append("=" * 80)
         report_parts.append("""
 This report is generated using Retrieval-Augmented Generation (RAG) technology
 and should be reviewed and verified by a qualified attorney. While sourced from
@@ -147,7 +143,6 @@ Rules of Criminal Procedure, this information is provided for educational purpos
 and does not constitute legal advice. An attorney should conduct independent legal
 research and provide personalized counsel based on the specific facts of the case.
 """)
-        report_parts.append("=" * 80)
         
         return "\n".join(report_parts)
     
@@ -161,69 +156,69 @@ TIER 1: ROUTINE / LOW-RISK
 Typical Cases: Traffic violations, civil infractions, name changes, small claims
 
 Characteristics:
-  • Simple procedural matters
-  • Limited legal complexity
-  • Lower stakes (minimal financial/personal impact)
-  • Straightforward resolution paths
-  • Can often be handled pro se or with limited counsel
+  - Simple procedural matters
+  - Limited legal complexity
+  - Lower stakes (minimal financial/personal impact)
+  - Straightforward resolution paths
+  - Can often be handled pro se or with limited counsel
 
 Recommended Action:
-  • Self-help resources may be sufficient
-  • Consider consulting with attorney for guidance only
-  • Plan for lower legal fees
+  - Self-help resources may be sufficient
+  - Consider consulting with attorney for guidance only
+  - Plan for lower legal fees
 """,
             2: """
 TIER 2: MODERATE / LITIGATION
 Typical Cases: Contested matters, felony charges, custody disputes, probation violations
 
 Characteristics:
-  • Moderate legal complexity
-  • Multi-party involvement or significant court proceedings
-  • Moderate stakes (meaningful financial/personal consequences)
-  • Requires strategic planning
-  • Need for professional legal representation
+  - Moderate legal complexity
+  - Multi-party involvement or significant court proceedings
+  - Moderate stakes (meaningful financial/personal consequences)
+  - Requires strategic planning
+  - Need for professional legal representation
 
 Recommended Action:
-  • Consult with qualified attorney soon
-  • Prepare documentation and timeline
-  • Budget for reasonable legal fees
-  • Plan for court appearances and discovery
+  - Consult with qualified attorney soon
+  - Prepare documentation and timeline
+  - Budget for reasonable legal fees
+  - Plan for court appearances and discovery
 """,
             3: """
 TIER 3: HIGH-STAKES / SERIOUS FELONY
 Typical Cases: Violent crimes, federal offenses, constitutional violations, serious property crimes
 
 Characteristics:
-  • Significant legal complexity
-  • Serious criminal exposure or major civil consequences
-  • High stakes (potential incarceration, major fines, loss of rights)
-  • Requires specialized expertise
-  • Multiple strategic options need evaluation
+  - Significant legal complexity
+  - Serious criminal exposure or major civil consequences
+  - High stakes (potential incarceration, major fines, loss of rights)
+  - Requires specialized expertise
+  - Multiple strategic options need evaluation
 
 Recommended Action:
-  • Engage experienced criminal defense or specialized counsel IMMEDIATELY
-  • Do not discuss with law enforcement without attorney present
-  • Preserve all evidence and documentation
-  • Plan for extended legal process and significant investment
-  • Consider expert witnesses or specialized services
+  - Engage experienced criminal defense or specialized counsel IMMEDIATELY
+  - Do not discuss with law enforcement without attorney present
+  - Preserve all evidence and documentation
+  - Plan for extended legal process and significant investment
+  - Consider expert witnesses or specialized services
 """,
             4: """
 TIER 4: COMPLEX / APPELLATE
 Typical Cases: Supreme Court matters, capital cases, precedent-setting litigation
 
 Characteristics:
-  • Complex legal analysis and novel issues
-  • Highest stakes possible (life/death, major constitutional issues, business-critical)
-  • Requires appellate or specialized expertise
-  • Multiple potential legal theories
-  • Significant impact on other matters or stakeholders
+  - Complex legal analysis and novel issues
+  - Highest stakes possible (life/death, major constitutional issues, business-critical)
+  - Requires appellate or specialized expertise
+  - Multiple potential legal theories
+  - Significant impact on other matters or stakeholders
 
 Recommended Action:
-  • Engage top-tier specialized legal counsel IMMEDIATELY
-  • Consider appellate specialists and experts in the specific practice area
-  • Expect lengthy and expensive legal process
-  • Coordinate with other parties/stakeholders as needed
-  • Prepare for potential policy or precedent implications
+  - Engage top-tier specialized legal counsel IMMEDIATELY
+  - Consider appellate specialists and experts in the specific practice area
+  - Expect lengthy and expensive legal process
+  - Coordinate with other parties/stakeholders as needed
+  - Prepare for potential policy or precedent implications
 """
         }
         
@@ -254,13 +249,11 @@ Recommended Action:
         report_parts = []
         
         report_parts.append("LEGAL RESEARCH SUMMARY")
-        report_parts.append("=" * 60)
         report_parts.append(f"\nTier: {tier} - {tier_description}")
         report_parts.append(f"Basis: {tier_reasoning}")
         report_parts.append(f"\nQuery: {query[:150]}{'...' if len(query) > 150 else ''}")
         report_parts.append("\n" + "-" * 60)
         report_parts.append("FINDINGS:\n")
         report_parts.append(answer)
-        report_parts.append("\n" + "=" * 60)
         
         return "\n".join(report_parts)
