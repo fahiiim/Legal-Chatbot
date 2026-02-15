@@ -43,7 +43,7 @@ class LegalReportGenerator:
             Formatted legal report string
         """
         
-        if = is None:
+        if citations is None:
             citations = []
         if sources is None:
             sources = []
@@ -136,7 +136,7 @@ class LegalReportGenerator:
         # Footer
         report_parts.append("DISCLAIMER")
         report_parts.append("""
-This report is generated using Retrieval-Augmented Generation (RAG) technology
+This report is generated using Advanced Retrieval-Augmented Generation (RAG) technology
 and should be reviewed and verified by a qualified attorney. While sourced from
 Michigan Model Criminal Jury Instructions, Federal Rules of Evidence, and Federal
 Rules of Criminal Procedure, this information is provided for educational purposes
