@@ -1,96 +1,56 @@
 [
   {
-    "question": "I'm in Michigan and want to file for divorce after 10 years. No kids but we own a small business together. What's the process if I making progress on the devorce, what is the legal rights in terms of federal and michigan law?",
-    "timestamp": "2026-02-14T00:42:36.709312",
+    "question": "I have been experiencing physical and emotional abuse from my spouse for the last two years. He frequently slaps and punches me, controls my finances, and threatens to throw me out of the house if I tell anyone. Recently, the violence has escalated; last week he hit me with a household object, leaving visible injuries, and refused to let me seek medical help. I am afraid for my safety and I also worry about the safety of my children who witness this abuse. Please tell me what legal protections and remedies are available to me, such as restraining orders, shelter options, and criminal charges.",
+    "timestamp": "2026-02-16T03:07:12.752315",
     "generation_metrics": {
       "faithfulness": {
-        "score": 2,
-        "reasoning": "The answer provides information about Michigan divorce law and property division, which is relevant to the topic. However, it does not reference the specific federal civil rules mentioned in the sources, which focus on procedural aspects of civil litigation rather than divorce law. Additionally, some claims about Michigan law are made without direct citations to the sources provided, leading to a lack of faithfulness to the original sources.",
-        "unsupported_claims": [
-          "Michigan is a no-fault divorce state, meaning you do not need to prove wrongdoing by your spouse to file for divorce.",
-          "The court will consider factors such as the duration of the marriage, contributions to the marital estate, and the needs and circumstances of each party."
-        ],
+        "score": 1,
+        "reasoning": "The answer does not relate to the provided source, which discusses federal civil procedure rules and does not address domestic violence or legal protections in Michigan. The content of the answer is entirely unrelated to the source material.",
+        "unsupported_claims": [],
         "is_faithful": false
       },
       "relevancy": {
         "score": 5,
-        "reasoning": "The answer thoroughly addresses the question by outlining the divorce process in Michigan, including relevant laws, the division of business assets, and recommended steps to take. It provides specific legal references and practical advice, making it highly relevant to the user's situation.",
+        "reasoning": "The answer provides comprehensive information on legal protections and remedies available for the individual experiencing domestic violence, including details on criminal charges, personal protection orders, and emergency shelter options. It directly addresses the concerns raised in the question and offers actionable steps for safety and legal recourse.",
+        "is_relevant": true
+      },
+      "completeness": {
+        "score": 5,
+        "reasoning": "The answer provides a comprehensive overview of the legal protections and remedies available to the individual experiencing domestic violence. It includes information on applicable criminal charges, the process for obtaining a Personal Protection Order (PPO), and recommendations for immediate actions to ensure safety. The response effectively utilizes the available sources and addresses the specific concerns raised in the question.",
+        "missing_information": [],
+        "is_complete": true
+      },
+      "overall_score": 3.4,
+      "overall_quality": "acceptable",
+      "timestamp": "2026-02-16T03:07:19.315670"
+    }
+  },
+  {
+    "question": "Someone has been threatening to kill me repeatedly for the past month. Yesterday, on a dark and isolated road, I was physically attacked and beaten by an unknown person; if nearby peoples had not come out of their homes after hearing me scream, I believe they would have killed me. After this incident, he called me again and repeated his death threats. I now want to take legal action against him.",
+    "timestamp": "2026-02-16T03:19:00.850605",
+    "generation_metrics": {
+      "faithfulness": {
+        "score": 5,
+        "reasoning": "The answer accurately reflects the applicable Michigan laws and criminal charges related to threats and physical assault as outlined in the sources. It correctly references the relevant statutes and jury instructions, providing a comprehensive legal assessment that aligns with the provided materials.",
+        "unsupported_claims": [],
+        "is_faithful": true
+      },
+      "relevancy": {
+        "score": 5,
+        "reasoning": "The answer provides a comprehensive legal assessment relevant to the individual's situation, detailing applicable criminal charges, protective measures, and recommended next steps. It directly addresses the need for legal action in response to the threats and physical assault described in the question.",
         "is_relevant": true
       },
       "completeness": {
         "score": 4,
-        "reasoning": "The answer provides a comprehensive overview of the divorce process in Michigan, including relevant laws, the division of property, and recommended steps. However, it does not reference any specific federal laws or rules that might apply to the divorce process, which could be relevant given the question's mention of federal law. Additionally, while it mentions the importance of business valuation, it could elaborate on how to approach this process or the potential implications of business ownership in divorce more thoroughly.",
+        "reasoning": "The answer provides a comprehensive overview of the legal options available to the individual, including potential criminal charges and protective measures. It also outlines recommended next steps, which are crucial for someone in this situation. However, it could benefit from more specific references to the available sources, particularly in relation to the legal definitions and procedures mentioned, as the sources provided are primarily focused on jury instructions rather than direct legal advice or procedures.",
         "missing_information": [
-          "Specific federal laws or rules that may apply to divorce proceedings",
-          "More detailed guidance on business valuation process and implications in divorce"
+          "Specific references to the legal definitions and procedures from the available sources could enhance the response."
         ],
         "is_complete": true
       },
-      "overall_score": 3.5,
-      "overall_quality": "good",
-      "timestamp": "2026-02-14T00:42:46.623918"
-    }
-  },
-  {
-    "question": "My landlord in New York refuses to fix a leaking roof that's ruined my stuff and caused mold. He's threatened eviction if I complain more. We have a lease\u2014what are my tenant rights and can I sue for damages?",
-    "timestamp": "2026-02-14T00:45:14.845030",
-    "generation_metrics": {
-      "faithfulness": {
-        "score": 1,
-        "reasoning": "The answer does not relate to the provided sources, which discuss federal civil rules, particularly regarding limitations of liability and discovery sanctions. The response instead focuses on tenant rights and landlord obligations in New York, which is outside the scope of the sources.",
-        "unsupported_claims": [
-          "Legal guidance based on Michigan law",
-          "Issues related to tenant rights and landlord obligations in New York"
-        ],
-        "is_faithful": false
-      },
-      "relevancy": {
-        "score": 2,
-        "reasoning": "The answer acknowledges the question about tenant rights and potential legal action but is mostly irrelevant because it only provides guidance based on Michigan law, which does not apply to the situation in New York.",
-        "is_relevant": false
-      },
-      "completeness": {
-        "score": 1,
-        "reasoning": "The answer does not address the specific tenant rights and potential legal actions available to the individual in New York regarding the leaking roof and mold issue. It also fails to utilize any relevant information from the available sources, which are focused on federal civil rules and do not pertain to tenant rights or landlord obligations.",
-        "missing_information": [
-          "Specific tenant rights in New York regarding repairs and mold issues",
-          "Legal options for suing for damages",
-          "Information on protections against retaliatory eviction"
-        ],
-        "is_complete": false
-      },
-      "overall_score": 1.3,
-      "overall_quality": "poor",
-      "timestamp": "2026-02-14T00:45:21.743830"
-    }
-  },
-  {
-    "question": "My landlord in Sioux city,michigan refuses to fix a leaking roof that's ruined my stuff and caused mold. He's threatened eviction if I complain more. We have a lease\u2014what are my tenant rights and can I sue for damages?",
-    "timestamp": "2026-02-14T00:46:15.226206",
-    "generation_metrics": {
-      "faithfulness": {
-        "score": 2,
-        "reasoning": "The answer discusses tenant rights and remedies under Michigan law, which is relevant to landlord-tenant issues. However, it does not reference the provided sources, which focus on federal civil rules and do not address state-specific landlord-tenant laws or the Michigan Consumer Protection Act. Therefore, while some legal principles may be accurate, the lack of connection to the sources makes it mostly unfaithful.",
-        "unsupported_claims": [
-          "The specific references to Michigan law (MCL 554.139 and MCL 445.901 et seq.) are not supported by the provided federal civil rules sources.",
-          "The procedural options and recommended next steps are not derived from the sources provided."
-        ],
-        "is_faithful": false
-      },
-      "relevancy": {
-        "score": 5,
-        "reasoning": "The answer thoroughly addresses the tenant's rights under Michigan law, outlines potential legal remedies, and provides actionable steps for the tenant to take in response to the landlord's neglect and threats. It directly responds to the question about tenant rights and the possibility of suing for damages.",
-        "is_relevant": true
-      },
-      "completeness": {
-        "score": 5,
-        "reasoning": "The answer provides a comprehensive overview of tenant rights under Michigan law, including relevant statutes and legal standards. It outlines specific actions the tenant can take, such as documenting issues, sending written notices, and consulting with an attorney. The response also addresses the potential for legal action and the importance of immediate action due to health risks, which aligns with the tenant's concerns about mold and property damage. Overall, it fully utilizes the available information and offers practical steps for the tenant.",
-        "missing_information": [],
-        "is_complete": true
-      },
-      "overall_score": 3.8,
-      "overall_quality": "good",
-      "timestamp": "2026-02-14T00:46:24.210670"
+      "overall_score": 4.7,
+      "overall_quality": "excellent",
+      "timestamp": "2026-02-16T03:19:11.670300"
     }
   }
 ]
