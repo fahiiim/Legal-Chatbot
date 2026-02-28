@@ -1,56 +1,28 @@
 [
   {
-    "question": "I have been experiencing physical and emotional abuse from my spouse for the last two years. He frequently slaps and punches me, controls my finances, and threatens to throw me out of the house if I tell anyone. Recently, the violence has escalated; last week he hit me with a household object, leaving visible injuries, and refused to let me seek medical help. I am afraid for my safety and I also worry about the safety of my children who witness this abuse. Please tell me what legal protections and remedies are available to me, such as restraining orders, shelter options, and criminal charges.",
-    "timestamp": "2026-02-16T03:07:12.752315",
-    "generation_metrics": {
-      "faithfulness": {
-        "score": 1,
-        "reasoning": "The answer does not relate to the provided source, which discusses federal civil procedure rules and does not address domestic violence or legal protections in Michigan. The content of the answer is entirely unrelated to the source material.",
-        "unsupported_claims": [],
-        "is_faithful": false
-      },
-      "relevancy": {
-        "score": 5,
-        "reasoning": "The answer provides comprehensive information on legal protections and remedies available for the individual experiencing domestic violence, including details on criminal charges, personal protection orders, and emergency shelter options. It directly addresses the concerns raised in the question and offers actionable steps for safety and legal recourse.",
-        "is_relevant": true
-      },
-      "completeness": {
-        "score": 5,
-        "reasoning": "The answer provides a comprehensive overview of the legal protections and remedies available to the individual experiencing domestic violence. It includes information on applicable criminal charges, the process for obtaining a Personal Protection Order (PPO), and recommendations for immediate actions to ensure safety. The response effectively utilizes the available sources and addresses the specific concerns raised in the question.",
-        "missing_information": [],
-        "is_complete": true
-      },
-      "overall_score": 3.4,
-      "overall_quality": "acceptable",
-      "timestamp": "2026-02-16T03:07:19.315670"
-    }
-  },
-  {
-    "question": "Someone has been threatening to kill me repeatedly for the past month. Yesterday, on a dark and isolated road, I was physically attacked and beaten by an unknown person; if nearby peoples had not come out of their homes after hearing me scream, I believe they would have killed me. After this incident, he called me again and repeated his death threats. I now want to take legal action against him.",
-    "timestamp": "2026-02-16T03:19:00.850605",
+    "question": "Someone has been threatening to kill me repeatedly for the past month. Yesterday, on a dark and isolated road, I was physically attacked and beaten by an unknown person; if nearby peoples had not come out of their homes after hearing me scream, I believe they would have killed me. After this incident, he called me again and repeated his death threats. I now want to take legal action against him",
+    "timestamp": "2026-03-01T04:57:28.101166",
     "generation_metrics": {
       "faithfulness": {
         "score": 5,
-        "reasoning": "The answer accurately reflects the applicable Michigan laws and criminal charges related to threats and physical assault as outlined in the sources. It correctly references the relevant statutes and jury instructions, providing a comprehensive legal assessment that aligns with the provided materials.",
+        "reasoning": "The answer accurately reflects the legal principles outlined in the provided sources, including the definitions and requirements for assault, threatening behavior, and stalking as per Michigan law. It also correctly emphasizes the importance of immediate legal action and protective measures, aligning with the sources' emphasis on the seriousness of threats.",
         "unsupported_claims": [],
         "is_faithful": true
       },
       "relevancy": {
         "score": 5,
-        "reasoning": "The answer provides a comprehensive legal assessment relevant to the individual's situation, detailing applicable criminal charges, protective measures, and recommended next steps. It directly addresses the need for legal action in response to the threats and physical assault described in the question.",
+        "reasoning": "The answer provides a comprehensive legal assessment of the situation, outlining applicable criminal charges, protective measures, and recommended next steps. It directly addresses the individual's desire to take legal action following threats and a physical attack, ensuring that safety and legal recourse are prioritized.",
         "is_relevant": true
       },
       "completeness": {
-        "score": 4,
-        "reasoning": "The answer provides a comprehensive overview of the legal options available to the individual, including potential criminal charges and protective measures. It also outlines recommended next steps, which are crucial for someone in this situation. However, it could benefit from more specific references to the available sources, particularly in relation to the legal definitions and procedures mentioned, as the sources provided are primarily focused on jury instructions rather than direct legal advice or procedures.",
-        "missing_information": [
-          "Specific references to the legal definitions and procedures from the available sources could enhance the response."
-        ],
+        "score": 5,
+        "reasoning": "The answer thoroughly addresses the legal options available to the individual facing threats and a physical attack. It effectively utilizes the relevant Michigan laws and criminal jury instructions to outline potential charges, protective measures, and recommended next steps. All critical aspects of the situation are covered, including the importance of immediate action for safety and legal recourse.",
+        "missing_information": [],
         "is_complete": true
       },
-      "overall_score": 4.7,
+      "overall_score": 5.0,
       "overall_quality": "excellent",
-      "timestamp": "2026-02-16T03:19:11.670300"
+      "timestamp": "2026-03-01T04:57:35.475334"
     }
   }
 ]
