@@ -27,15 +27,12 @@ share/python-wheels/
 *.egg
 
 # IDE
-.vscode/
 .idea/
 *.swp
 *.swo
 *~
 
 # Environment (use AWS Secrets Manager / Parameter Store for secrets)
-.env
-.env.local
 
 # Cache
 embeddings_cache.json
@@ -45,3 +42,9 @@ chroma_db/
 # OS
 .DS_Store
 Thumbs.db
+temp_auto_push.bat
+temp_interactive_push.bat
+.gitignore
+branch_structure.json
+config.bat
+node_modules
