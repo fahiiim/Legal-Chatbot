@@ -1,28 +1,33 @@
 [
   {
-    "question": "Someone has been threatening to kill me repeatedly for the past month. Yesterday, on a dark and isolated road, I was physically attacked and beaten by an unknown person; if nearby peoples had not come out of their homes after hearing me scream, I believe they would have killed me. After this incident, he called me again and repeated his death threats. I now want to take legal action against him",
-    "timestamp": "2026-03-01T04:57:28.101166",
+    "question": "I want to file for divorce in Michigan after a 7\u2011year marriage. We have one child and a house. How does custody and property division usually work?",
+    "timestamp": "2026-03-01T05:58:13.969201",
     "generation_metrics": {
       "faithfulness": {
-        "score": 5,
-        "reasoning": "The answer accurately reflects the legal principles outlined in the provided sources, including the definitions and requirements for assault, threatening behavior, and stalking as per Michigan law. It also correctly emphasizes the importance of immediate legal action and protective measures, aligning with the sources' emphasis on the seriousness of threats.",
-        "unsupported_claims": [],
+        "score": 4,
+        "reasoning": "The answer is mostly faithful to the sources, accurately reflecting the requirements for filing a divorce complaint and addressing custody and property division. However, it includes some details that are not explicitly supported by the provided sources, such as specific references to MCL 722.21 et seq. and MCL 552.19, which are not directly cited in the sources.",
+        "unsupported_claims": [
+          "Specific references to MCL 722.21 et seq. and MCL 552.19 as governing statutes for custody and property division, respectively."
+        ],
         "is_faithful": true
       },
       "relevancy": {
         "score": 5,
-        "reasoning": "The answer provides a comprehensive legal assessment of the situation, outlining applicable criminal charges, protective measures, and recommended next steps. It directly addresses the individual's desire to take legal action following threats and a physical attack, ensuring that safety and legal recourse are prioritized.",
+        "reasoning": "The answer comprehensively addresses the question regarding divorce in Michigan, specifically focusing on child custody and property division, which are the main concerns raised in the question. It provides relevant legal standards, procedural options, and recommended next steps, making it fully relevant to the inquiry.",
         "is_relevant": true
       },
       "completeness": {
-        "score": 5,
-        "reasoning": "The answer thoroughly addresses the legal options available to the individual facing threats and a physical attack. It effectively utilizes the relevant Michigan laws and criminal jury instructions to outline potential charges, protective measures, and recommended next steps. All critical aspects of the situation are covered, including the importance of immediate action for safety and legal recourse.",
-        "missing_information": [],
+        "score": 4,
+        "reasoning": "The answer provides a comprehensive overview of the legal standards for child custody and property division in Michigan, referencing relevant statutes and court rules. It outlines the necessary steps for filing for divorce and emphasizes the importance of consulting with a family law attorney. However, it could benefit from more specific details regarding the process of custody determination and property division, such as how the court typically divides property and the potential outcomes for custody arrangements.",
+        "missing_information": [
+          "Specific examples of how property division is typically handled in Michigan, including potential outcomes for the house.",
+          "More detailed explanation of the factors considered in custody arrangements beyond just the best interests of the child."
+        ],
         "is_complete": true
       },
-      "overall_score": 5.0,
-      "overall_quality": "excellent",
-      "timestamp": "2026-03-01T04:57:35.475334"
+      "overall_score": 4.3,
+      "overall_quality": "good",
+      "timestamp": "2026-03-01T05:58:22.673658"
     }
   }
 ]
